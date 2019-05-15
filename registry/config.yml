@@ -1,0 +1,29 @@
+version: 0.1
+
+log:
+  level: info
+
+storage:
+  delete:
+    enabled: true
+
+  gcs:
+    bucket: replreg
+    keyfile: /etc/gcs.json
+    rootdirectory: /
+
+http:
+  addr: 0.0.0.0:__PORT__
+  secret: __REPLREG_SECRET__
+  host: __REPLREG_HOST__
+
+notifications:
+  endpoints:
+    - name: rgstry-hooks
+      url: __HOOK_URI__
+      headers:
+        Authorization: ["Token __HOOK_TOKEN__"]
+      timeout: 200ms
+      threshold: 3
+      backoff: 5s
+

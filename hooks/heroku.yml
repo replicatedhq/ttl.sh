@@ -1,0 +1,4 @@
+build:
+  docker:
+    hooks: Dockerfile.hooks
+    reap: Dockerfile.reap
