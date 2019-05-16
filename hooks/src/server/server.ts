@@ -3,7 +3,6 @@ import * as cors from "cors";
 import {ServerLoader, ServerSettings} from "ts-express-decorators";
 import {$log} from "ts-log-debug";
 import Path = require("path");
-import getPgPool from "../util/pg";
 import * as bodyParser from "body-parser";
 
 let port = process.env.PORT;
@@ -41,8 +40,6 @@ export class Server extends ServerLoader {
     }));
 
     this.use(cors());
-
-    const pool = getPgPool();
 
     if (process.env["NODE_ENV"] === "production") {
       $log.level = "OFF";
