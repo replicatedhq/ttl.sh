@@ -73,8 +73,8 @@ async function main(argv): Promise<any> {
         await rp(options);
 
         console.log(`expiring ${image}`);
-        await delAsync(image);
         await sremAsync("current.images", image);
+        await delAsync(image);
       }
     },
     start: true,
