@@ -62,6 +62,6 @@ action "push reaper" {
 action "release reaper" {
   uses = "actions/heroku@master"
   needs = "push reaper"
-  args = "container:release -a replreg-hooks webreap"
+  args = "container:release -a replreg-hooks reap"
   secrets = ["HEROKU_API_KEY"]
 }
