@@ -68,6 +68,7 @@ async function main(argv): Promise<any> {
           method: "DELETE",
           uri: deleteURI,
           headers,
+          simple: false,
         }
 
         await rp(options);
