@@ -1,0 +1,30 @@
+{
+  "name": "replreg-cloudflare-worker",
+  "version": "0.0.1",
+  "description": "Cloudflare Workers for replreg.is",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/replicatedhq/replreg.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/replicatedhq/replreg/issues"
+  },
+  "homepage": "https://github.com/replicatedhq/replreg#readme",
+  "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "typescript": "^3.4.5",
+    "webpack": "^4.31.0",
+    "webpack-cli": "^3.3.2",
+    "workers-preview": "^1.0.6"
+  },
+  "dependencies": {
+    "moment": "^2.24.0",
+    "parse-duration": "^0.1.1"
+  }
+}

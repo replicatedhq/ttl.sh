@@ -58,8 +58,15 @@ async function main(argv): Promise<any> {
           uri: `https://replreg.is/v2/${imageAndTag[0]}/manifests/${imageAndTag[1]}`,
           headers,
           resolveWithFullResponse: true,
+          simple: false,
         }
         const getResponse = await rp(getOptions);
+
+        if (getResponse.statusCode == 404) {
+          await sremAsync("current.images", image);
+          await delAsync(image);
+          continue;
+        }
 
         const deleteURI = `https://replreg.is/v2/${imageAndTag[0]}/manifests/${getResponse.headers.etag.replace(/"/g,"")}`;
 
@@ -68,6 +75,7 @@ async function main(argv): Promise<any> {
           method: "DELETE",
           uri: deleteURI,
           headers,
+          resolveWithFullResponse: true,
           simple: false,
         }
 

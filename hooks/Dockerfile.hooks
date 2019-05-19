@@ -1,13 +1,9 @@
 FROM node:10 as deps
 ADD ./package.json /src/package.json
 ADD ./Makefile /src/Makefile
-WORKDIR /src
-RUN make deps
-
-FROM node:10
 ADD . /src
 WORKDIR /src
-COPY --from=0 /src .
-RUN make test
+RUN make deps  test
+
 ENTRYPOINT ["node"]
 CMD ["--no-deprecation", "build/server.js", "hooks"]
