@@ -1,5 +1,5 @@
 {
-  "name": "replreg-cloudflare-worker",
+  "name": "ttlsh-cloudflare-worker",
   "version": "0.0.1",
   "description": "Cloudflare Workers for ttl.sh",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/replicatedhq/replreg.git"
+    "url": "git+https://github.com/replicatedhq/ttl.sh.git"
   },
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/replicatedhq/replreg/issues"
+    "url": "https://github.com/replicatedhq/ttl.sh/issues"
   },
-  "homepage": "https://github.com/replicatedhq/replreg#readme",
+  "homepage": "https://github.com/replicatedhq/ttl.sh#readme",
   "devDependencies": {
     "awesome-typescript-loader": "^5.2.1",
     "typescript": "^3.4.5",

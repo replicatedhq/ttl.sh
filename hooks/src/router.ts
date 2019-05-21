@@ -48,7 +48,7 @@ export const onSuccess = (res: express.Response, reqId: string, statusCodeGetter
       logger.warn(util.inspect(res));
     }
     logger.info(`[${reqId}] => ${statusToSend} ${bodyToLog}`);
-    const respObj = res.status(statusToSend).type(contentType).set("X-Replreg-RequestId", reqId);
+    const respObj = res.status(statusToSend).type(contentType).set("X-Ttlsh-RequestId", reqId);
     if (result.filename) {
       respObj.attachment(result.filename);
     }
@@ -61,7 +61,7 @@ export const onSuccess = (res: express.Response, reqId: string, statusCodeGetter
   } else {
     const statusToSend = (statusCodeGetter && statusCodeGetter()) || 200;
     logger.info(`[${reqId}] => ${statusToSend}`);
-    res.status(statusToSend).set("X-Replreg-RequestId", reqId).json(result);
+    res.status(statusToSend).set("X-Ttlsh-RequestId", reqId).json(result);
   }
 };
 
@@ -88,7 +88,7 @@ function handleFrameworkError(err: any, reqId: string, res: express.Response) {
     error: errMsg,
     invalid: err.invalid,
   };
-  res.status(err.status).set("X-Replreg-RequestId", reqId).json(bodyToSend);
+  res.status(err.status).set("X-Ttlsh-RequestId", reqId).json(bodyToSend);
 
 }
 
@@ -105,7 +105,7 @@ function handleUnexpectedError(err: any, reqId: string, res: express.Response) {
     logger.error("Middleware error, current response object is", util.inspect(res));
   }
   logger.error(`[${reqId}] !! 500 ${err.stack || err.message || util.inspect(err)}`);
-  res.status(500).set("X-Replreg-RequestId", reqId).json(bodyToSend);
+  res.status(500).set("X-Ttlsh-RequestId", reqId).json(bodyToSend);
 }
 
 export const preRequest = (req: express.Request, reqId: string) => {
