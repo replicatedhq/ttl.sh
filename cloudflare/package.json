@@ -1,7 +1,7 @@
 {
   "name": "replreg-cloudflare-worker",
   "version": "0.0.1",
-  "description": "Cloudflare Workers for replreg.is",
+  "description": "Cloudflare Workers for ttl.sh",
   "main": "index.js",
   "scripts": {
     "test": "make test"
