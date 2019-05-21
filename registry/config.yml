@@ -3,10 +3,6 @@ version: 0.1
 log:
   level: info
 
-compatibility:
-  schema1:
-    enabled: true
-
 storage:
   delete:
     enabled: true
