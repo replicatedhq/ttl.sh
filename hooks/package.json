@@ -1,7 +1,7 @@
 {
   "name": "hooks",
   "version": "1.0.0",
-  "description": "replreg hooks",
+  "description": "ttlsh hooks",
   "license": "Apache-2.0",
   "main": "./build/server.js",
   "dependencies": {

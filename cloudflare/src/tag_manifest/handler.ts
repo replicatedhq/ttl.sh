@@ -52,7 +52,7 @@ export async function handleTagManifestRequest(r: Request, params: TagManifestPa
   const teapotResponse = {
     "errors": [
       {
-        "message": `\r              \nimage replreg.is/${imageName} is available now and will be automatically deleted ${expirationFromTag(params.tag)}\n\nreplreg is contributed by Replicated (www.replicated.com)`
+        "message": `\r              \nimage ttl.sh/${imageName} is available now and will be automatically deleted ${expirationFromTag(params.tag)}\n\ttl.sh is contributed by Replicated (www.replicated.com)`
       }
     ]
   };

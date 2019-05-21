@@ -55,7 +55,7 @@ async function main(argv): Promise<any> {
         // Get the manifest from the tag
         const getOptions = {
           method: "HEAD",
-          uri: `https://replreg.is/v2/${imageAndTag[0]}/manifests/${imageAndTag[1]}`,
+          uri: `https://ttl.sh/v2/${imageAndTag[0]}/manifests/${imageAndTag[1]}`,
           headers,
           resolveWithFullResponse: true,
           simple: false,
@@ -68,7 +68,7 @@ async function main(argv): Promise<any> {
           continue;
         }
 
-        const deleteURI = `https://replreg.is/v2/${imageAndTag[0]}/manifests/${getResponse.headers.etag.replace(/"/g,"")}`;
+        const deleteURI = `https://ttl.sh/v2/${imageAndTag[0]}/manifests/${getResponse.headers.etag.replace(/"/g,"")}`;
 
         // Remove from the registry
         const options = {

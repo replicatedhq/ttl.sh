@@ -13,7 +13,7 @@ async function proxyRequest(r: Request): Promise<Response> {
 
   if (!isRegistryRequest(r)) {
     return fetch(`https://friendly-goldstine-7897fc.netlify.com/${url.pathname}`);
-  }    
+  }
 
   if (isCatalogRequest(r)) {
     return new Response(null, {
@@ -21,10 +21,11 @@ async function proxyRequest(r: Request): Promise<Response> {
     });
   }
 
-  const tagManifestParams = await tryParsePutTagRequest(r.method, url);
-  if (tagManifestParams) {
-    return handleTagManifestRequest(r, tagManifestParams);
-  }
+  // Removing this code for now. It causes Docker to exit with a 1 exit code :(
+  // const tagManifestParams = await tryParsePutTagRequest(r.method, url);
+  // if (tagManifestParams) {
+  //   return handleTagManifestRequest(r, tagManifestParams);
+  // }
 
   return fetch(r);
 }
