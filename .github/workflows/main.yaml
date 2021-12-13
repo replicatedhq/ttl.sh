@@ -8,15 +8,15 @@ on:
       - "release reaper"
 
 jobs:
-  only master branch:
+  only main branch:
     runs-on: ubuntu-latest
-    uses: actions/bin/filter@master
+    uses: actions/bin/filter@main
     with:
-      args: "branch master"
+      args: "branch main"
   
   heroku login:
-    needs: only master branch
-    uses: actions/heroku@master
+    needs: only main branch
+    uses: actions/heroku@main
     with:
       args: container:login
       secrets: 
@@ -24,7 +24,7 @@ jobs:
 
   build registry:
     needs: heroku login
-    uses: actions/docker/cli@master
+    uses: actions/docker/cli@main
     with:
       args: "build -t registry.heroku.com/ttlsh/web registry"
   
@@ -35,7 +35,7 @@ jobs:
 
   release registry:
     needs: push registry
-    uses: actions/heroku@master
+    uses: actions/heroku@main
     with:
       args: "container:release -a ttlsh web"
       secrets: 
@@ -43,19 +43,19 @@ jobs:
 
   build hooks:
     needs: heroku login
-    uses: actions/docker/cli@master
+    uses: actions/docker/cli@main
     with:
       args: "build -f hooks/Dockerfile.hooks -t registry.heroku.com/ttlsh-hooks/web hooks"
 
   push hooks:
     needs: build hooks
-    uses: actions/docker/cli@master
+    uses: actions/docker/cli@main
     with:
       args: "push registry.heroku.com/ttlsh-hooks/web"
 
   release hooks:
     needs: push hooks
-    uses: actions/heroku@master
+    uses: actions/heroku@main
     with:
       args: "container:release -a ttlsh-hooks web"
       secrets:
@@ -63,19 +63,19 @@ jobs:
   
   build reaper:
     needs: heroku login
-    uses: actions/docker/cli@master
+    uses: actions/docker/cli@main
     with:
       args: "build -f hooks/Dockerfile.reap -t registry.heroku.com/ttlsh-hooks/reap hooks"
     
   push reaper:
     needs: build reaper
-    uses: actions/docker/cli@master
+    uses: actions/docker/cli@main
     with:
      args: "push registry.heroku.com/ttlsh-hooks/reap"
   
   release reaper:
     needs: push reaper
-    uses: actions/heroku@master
+    uses: actions/heroku@main
     with:
       args: "container:release -a ttlsh-hooks reap"
       secrets:
