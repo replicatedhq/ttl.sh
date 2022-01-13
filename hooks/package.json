@@ -19,7 +19,7 @@
     "pino": "^5.12.3",
     "pino-pretty": "^2.6.1",
     "randomstring": "^1.1.5",
-    "redis": "^2.8.0",
+    "redis": "^4.0.2",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "simple-oauth2": "^2.2.1",
