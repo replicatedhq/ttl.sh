@@ -24,7 +24,7 @@
     "workers-preview": "^1.0.6"
   },
   "dependencies": {
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "parse-duration": "^0.1.1"
   }
 }
