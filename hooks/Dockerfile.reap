@@ -1,7 +1,7 @@
 FROM node:10 as deps
-ADD ./package.json /src/package.json
-ADD ./Makefile /src/Makefile
-ADD . /src
+COPY ./package.json /src/package.json
+COPY ./Makefile /src/Makefile
+COPY . /src
 WORKDIR /src
 RUN make deps test
 
