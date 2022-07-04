@@ -36,7 +36,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^6.0.2",
     "mocha-typescript": "^1.0.23",
-    "ts-node": "^8.0.2",
+    "ts-node": "^10.8.2",
     "tslint": "^5.13.0",
     "typemoq": "^2.1.0",
     "typescript": "^3.3.3333"
