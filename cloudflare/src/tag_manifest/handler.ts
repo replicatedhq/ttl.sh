@@ -2,6 +2,8 @@ import { TagManifestParams } from "./";
 import * as parseDuration from "parse-duration";
 import * as moment from "moment";
 
+const durationRegex = /^(?=\d+[ywdhms])(( ?\d+y)?(?!\d))?(( ?\d+w)?(?!\d))?(( ?\d+d)?(?!\d))?(( ?\d+h)?(?!\d))?(( ?\d+m)?(?!\d))?(( ?\d+s)?(?!\d))?( ?\d+ms)?$/;
+
 export function tryParsePutTagRequest(method: string, url: URL): TagManifestParams | void {
   const split = url.pathname.split("/");
 
@@ -67,10 +69,9 @@ export async function handleTagManifestRequest(r: Request, params: TagManifestPa
 
 function expirationFromTag(tag: string): string {
   let parsed = parseDuration(tag);
-  const regex = /^(?=\d+[ywdhms])(( ?\d+y)?(?!\d))?(( ?\d+w)?(?!\d))?(( ?\d+d)?(?!\d))?(( ?\d+h)?(?!\d))?(( ?\d+m)?(?!\d))?(( ?\d+s)?(?!\d))?( ?\d+ms)?$/;
-  if (!regex.test(tag)) {
-    // invalid duration, default to 1h
-    parsed = 60 * 60 * 1000
+  if (!durationRegex.test(tag)) {
+    // invalid duration, default to 24h
+    parsed = 24 * 60 * 60 * 1000;
   }
   const now = new Date();
   const then = moment(now.getTime() + parsed);
