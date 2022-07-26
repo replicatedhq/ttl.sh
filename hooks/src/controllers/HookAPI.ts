@@ -54,7 +54,7 @@ export class HookAPI {
         let expireInSeconds = 60 * 60 * 1000;
 
         console.log(`parsing tag ${tag}`);
-        const parsed = parseDuration(tag);
+        const parsed = durationfromTag(tag);
         if (parsed > 0) {
           expireInSeconds = parsed;
 
@@ -75,4 +75,12 @@ export class HookAPI {
 
     return {};
   }
+}
+
+function durationfromTag(tag: string): number {
+  const regex = /^(?=\d+[ywdhms])(( ?\d+y)?(?!\d))?(( ?\d+w)?(?!\d))?(( ?\d+d)?(?!\d))?(( ?\d+h)?(?!\d))?(( ?\d+m)?(?!\d))?(( ?\d+s)?(?!\d))?( ?\d+ms)?$/;
+  if (!regex.test(tag)) {
+    return -1;
+  }
+  return parseDuration(tag);
 }
