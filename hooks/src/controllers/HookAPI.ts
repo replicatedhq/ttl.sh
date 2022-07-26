@@ -18,6 +18,10 @@ const client = redis.createClient({url: process.env["REDISCLOUD_URL"]});
 const saddAsync = promisify(client.sadd).bind(client);
 const hsetAsync = promisify(client.hset).bind(client);
 
+const durationRegex = /^(?=\d+[ywdhms])(( ?\d+y)?(?!\d))?(( ?\d+w)?(?!\d))?(( ?\d+d)?(?!\d))?(( ?\d+h)?(?!\d))?(( ?\d+m)?(?!\d))?(( ?\d+s)?(?!\d))?( ?\d+ms)?$/;
+const defaultDuration = 24 * 60 * 60 * 1000; // 24h
+const maxDuration = 24 * 60 * 60 * 1000; // 24h
+
 @Controller("/v1/hook")
 export class HookAPI {
   /**
@@ -50,24 +54,19 @@ export class HookAPI {
 
         const imageWithTag = `${image}:${tag}`;
 
-        // default to 1h
-        let expireInSeconds = 60 * 60 * 1000;
-
         console.log(`parsing tag ${tag}`);
-        const parsed = parseDuration(tag);
-        if (parsed > 0) {
-          expireInSeconds = parsed;
-
-          // enforce a max of 24 hours
-          if (expireInSeconds > 24 * 60 * 60 * 1000) {
-            expireInSeconds = 24 * 60 * 60 * 1000;
-          }
+        let expiresIn = durationfromTag(tag);
+        if (expiresIn <= 0) {
+          expiresIn = defaultDuration
+        }
+        if (expiresIn > maxDuration) {
+          expiresIn = maxDuration
         }
 
         await saddAsync("current.images", imageWithTag);
 
         const now = new Date().getTime();
-        const then = now + expireInSeconds;
+        const then = now + expiresIn;
 
         await hsetAsync(imageWithTag, "created", now, "expires", then);
       }
@@ -75,4 +74,11 @@ export class HookAPI {
 
     return {};
   }
+}
+
+function durationfromTag(tag: string): number {
+  if (!durationRegex.test(tag)) {
+    return -1;
+  }
+  return parseDuration(tag);
 }
