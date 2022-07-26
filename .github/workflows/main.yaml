@@ -2,20 +2,11 @@ name: Deploy to Heroku
 
 on:
   push:
-    resolves:
-      - "release registry"
-      - "release hooks"
-      - "release reaper"
+    branches:
+      - main
 
 jobs:
-  only master branch:
-    runs-on: ubuntu-latest
-    uses: actions/bin/filter@master
-    with:
-      args: "branch master"
-  
   heroku login:
-    needs: only master branch
     uses: actions/heroku@master
     with:
       args: container:login
