@@ -6,68 +6,40 @@ on:
       - main
 
 jobs:
-  heroku login:
-    uses: actions/heroku@master
-    with:
-      args: container:login
-      secrets: 
-       - ${{secrets.HEROKU_API_KEY}}
+  release:
+    runs-on: ubuntu-latest
+    env:
+      HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-  build registry:
-    needs: heroku login
-    uses: actions/docker/cli@master
-    with:
-      args: "build -t registry.heroku.com/ttlsh/web registry"
-  
-  push registry:
-    needs: build registry
-    with:
-      args: "push registry.heroku.com/ttlsh/web"
+      - name: heroku registry login
+        run: heroku container:login
 
-  release registry:
-    needs: push registry
-    uses: actions/heroku@master
-    with:
-      args: "container:release -a ttlsh web"
-      secrets: 
-       - ${{secrets.HEROKU_API_KEY}}
+      - name: build registry
+        run: docker build -t registry.heroku.com/ttlsh/web registry
 
-  build hooks:
-    needs: heroku login
-    uses: actions/docker/cli@master
-    with:
-      args: "build -f hooks/Dockerfile.hooks -t registry.heroku.com/ttlsh-hooks/web hooks"
+      - name: push registry
+        run: docker push registry.heroku.com/ttlsh/web
 
-  push hooks:
-    needs: build hooks
-    uses: actions/docker/cli@master
-    with:
-      args: "push registry.heroku.com/ttlsh-hooks/web"
+      - name: release registry
+        run: heroku container:release -a ttlsh web
 
-  release hooks:
-    needs: push hooks
-    uses: actions/heroku@master
-    with:
-      args: "container:release -a ttlsh-hooks web"
-      secrets:
-        - ${{secrets.HEROKU_API_KEY}}
-  
-  build reaper:
-    needs: heroku login
-    uses: actions/docker/cli@master
-    with:
-      args: "build -f hooks/Dockerfile.reap -t registry.heroku.com/ttlsh-hooks/reap hooks"
-    
-  push reaper:
-    needs: build reaper
-    uses: actions/docker/cli@master
-    with:
-     args: "push registry.heroku.com/ttlsh-hooks/reap"
-  
-  release reaper:
-    needs: push reaper
-    uses: actions/heroku@master
-    with:
-      args: "container:release -a ttlsh-hooks reap"
-      secrets:
-        - ${{secrets.HEROKU_API_KEY}}
+      - name: build hooks
+        run: docker build -f hooks/Dockerfile.hooks -t registry.heroku.com/ttlsh-hooks/web hooks
+
+      - name: push hooks
+        run: docker push registry.heroku.com/ttlsh-hooks/web
+
+      - name: release hooks
+        run: heroku container:release -a ttlsh-hooks web
+
+      - name: build reaper
+        run: docker build -f hooks/Dockerfile.reap -t registry.heroku.com/ttlsh-hooks/reap hooks
+
+      - name: push reaper
+        run: docker push registry.heroku.com/ttlsh-hooks/reap
+
+      - name: release reaper
+        run: heroku container:release -a ttlsh-hooks reap
