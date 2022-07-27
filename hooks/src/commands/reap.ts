@@ -69,9 +69,7 @@ async function main(argv): Promise<any> {
             continue;
           }
   
-          for (const h of getResponse.headers) {
-            console.log("++++ header", JSON.stringify(h));
-          }
+          console.log("++++ headers", JSON.stringify(getResponse.headers));
           const deleteURI = `https://ttl.sh/v2/${imageAndTag[0]}/manifests/${getResponse.headers.etag.replace(/"/g,"")}`;
   
           // Remove from the registry
