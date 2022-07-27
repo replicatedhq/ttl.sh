@@ -47,9 +47,9 @@ async function main(argv): Promise<any> {
         await reapExpiredImages();
       } catch(err) {
         console.log("failed to reap expired images:", err);
+      } finally {
+        jobRunning = false;
       }
-
-      jobRunning = false;
     },
     start: true,
   });
