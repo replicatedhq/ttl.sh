@@ -69,6 +69,7 @@ async function main(argv): Promise<any> {
             continue;
           }
   
+          console.log("++++ status code", getResponse.statusCode);
           console.log("++++ headers", JSON.stringify(getResponse.headers));
           const deleteURI = `https://ttl.sh/v2/${imageAndTag[0]}/manifests/${getResponse.headers.etag.replace(/"/g,"")}`;
   
