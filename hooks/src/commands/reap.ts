@@ -30,10 +30,17 @@ async function main(argv): Promise<any> {
     process.exit();
   });
 
+  let jobRunning: boolean = false;
+  
   const job = new CronJob({
     cronTime: "* * * * *",
     onTick: async () => {
+      if (jobRunning) {
+        console.log("-----> previous reap job is still running, skipping.");
+        return;
+      }
       console.log("-----> beginning to reap expired images");
+      jobRunning = true;
 
       const now = new Date().getTime();
       const images = await smembersAsync("current.images");
@@ -62,7 +69,7 @@ async function main(argv): Promise<any> {
             simple: false,
           }
           const getResponse = await rp(getOptions);
-  
+
           if (getResponse.statusCode == 404) {
             await sremAsync("current.images", image);
             await delAsync(image);
@@ -91,6 +98,8 @@ async function main(argv): Promise<any> {
           console.log(`failed to evaluate image ${image}:`, err);
         }
       }
+
+      jobRunning = false;
     },
     start: true,
   });
