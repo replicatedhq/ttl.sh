@@ -31,10 +31,10 @@
   "devDependencies": {
     "@types/express": "^4.16.1",
     "@types/lodash": "^4.14.121",
-    "@types/mocha": "^5.2.6",
+    "@types/mocha": "^10.0.0",
     "chai": "^4.2.0",
     "istanbul": "^0.4.5",
-    "mocha": "^6.0.2",
+    "mocha": "^10.1.0",
     "mocha-typescript": "^1.0.23",
     "ts-node": "^8.0.2",
     "tslint": "^5.13.0",
