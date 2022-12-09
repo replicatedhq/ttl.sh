@@ -10,7 +10,7 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "cron": "^1.7.1",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "fast-crc32c": "^1.0.4",
     "left-pad": "^1.1.3",
     "lodash": "^4.17.11",
