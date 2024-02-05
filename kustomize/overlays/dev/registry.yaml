@@ -46,6 +46,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: registry-config
+  labels:
+    app: ttl-registry
 data:
   config.yml: |
     version: 0.1
@@ -74,6 +76,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ttl-registry
+  labels:
+    app: ttl-registry
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
 spec:
   type: ClusterIP
   ports:

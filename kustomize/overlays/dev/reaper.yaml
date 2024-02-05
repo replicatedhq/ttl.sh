@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ttl-reaper
+  labels:
+    app: ttl-reaper
 spec:
   selector:
     matchLabels:
@@ -48,6 +50,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ttl-reaper
+  labels:
+    app: ttl-reaper
 spec:
   type: ClusterIP
   ports:
