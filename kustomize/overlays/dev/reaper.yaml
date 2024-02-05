@@ -40,7 +40,6 @@ spec:
           image: ttl-reaper
           ports:
             - containerPort: 8000
-            - containerPort: 2400
           env:
             - name: REGISTRY_URL
               value: http://ttl-registry:5000

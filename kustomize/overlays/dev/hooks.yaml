@@ -40,7 +40,6 @@ spec:
           image: ttl-hooks
           ports:
             - containerPort: 8000
-            - containerPort: 2400
           env:
             - name: REDISCLOUD_URL
               value: redis://ttl-redis:6379

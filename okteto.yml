@@ -22,8 +22,6 @@ dev:
       limits:
         cpu: "1"
         memory: 1Gi
-    forward:
-      - 2400:2400
   ttl-reaper:
     command: make deps build && bash || bash
     workdir: /src
@@ -33,5 +31,3 @@ dev:
       limits:
         cpu: "1"
         memory: 1Gi
-    forward:
-      - 2401:2400
