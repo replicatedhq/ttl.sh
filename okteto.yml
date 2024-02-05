@@ -7,8 +7,8 @@ build:
     dockerfile: ./hooks/Dockerfile.reap
 
 deploy:
-  - cd kustomize/overlays/dev && kustomize edit set image replicated-api=${OKTETO_BUILD_TTL_HOOKS_IMAGE}
-  - cd kustomize/overlays/dev && kustomize edit set image replicated-vendor-api=${OKTETO_BUILD_TTL_REAPER_IMAGE}
+  - cd kustomize/overlays/dev && kustomize edit set image ttl-hooks=${OKTETO_BUILD_TTL_HOOKS_IMAGE}
+  - cd kustomize/overlays/dev && kustomize edit set image ttl-reaper=${OKTETO_BUILD_TTL_REAPER_IMAGE}
 
   - kubectl apply -k kustomize/overlays/dev
 

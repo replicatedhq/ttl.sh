@@ -37,6 +37,7 @@ spec:
               done
       containers:
         - name: ttl-hooks
+          image: ttl-hooks
           ports:
             - containerPort: 8000
             - containerPort: 2400
