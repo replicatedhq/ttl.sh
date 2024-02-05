@@ -17,24 +17,21 @@ spec:
       containers:
         - name: ttl-registry
           image: registry:2
-          command:
-            - /bin/sh
-            - -c
-            - /entrypoint.sh
+          command: ["/entrypoint.sh"]
           ports:
             - containerPort: 5000
           volumeMounts:
             - name: registry-data
               mountPath: /var/lib/registry
+            - name: registry-scripts
+              mountPath: /entrypoint.sh
+              subPath: entrypoint.sh
+            - name: registry-scripts
+              mountPath: /garbage-collect.sh
+              subPath: garbage-collect.sh
             - name: registry-config
               mountPath: /etc/docker/registry/config.yml
               subPath: config.yml
-            - name: registry-config
-              mountPath: /entrypoint.sh
-              subPath: entrypoint.sh
-            - name: registry-config
-              mountPath: /garbage-collect.sh
-              subPath: garbage-collect.sh
           readinessProbe:
             failureThreshold: 3
             initialDelaySeconds: 10
@@ -50,13 +47,16 @@ spec:
           emptyDir: {}
         - name: registry-config
           configMap:
-            name: registry-config
+            name: ttl-registry-config
+        - name: registry-scripts
+          configMap:
+            name: ttl-registry-scripts
             defaultMode: 0755
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: registry-config
+  name: ttl-registry-scripts
   labels:
     app: ttl-registry
 data:
@@ -69,7 +69,19 @@ data:
   garbage-collect.sh: |
     #!/bin/sh
     set -e
+    if [ ! -d "/var/lib/registry/docker" ]; then
+      echo "No registry data found, skipping garbage collection"
+      exit 0
+    fi
     registry garbage-collect /etc/docker/registry/config.yml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ttl-registry-config
+  labels:
+    app: ttl-registry
+data:
   config.yml: |
     version: 0.1
     log:
