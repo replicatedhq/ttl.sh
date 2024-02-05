@@ -17,6 +17,10 @@ spec:
       containers:
         - name: ttl-registry
           image: registry:2
+          command:
+            - /bin/sh
+            - -c
+            - /entrypoint.sh
           ports:
             - containerPort: 5000
           volumeMounts:
@@ -25,6 +29,12 @@ spec:
             - name: registry-config
               mountPath: /etc/docker/registry/config.yml
               subPath: config.yml
+            - name: registry-config
+              mountPath: /entrypoint.sh
+              subPath: entrypoint.sh
+            - name: registry-config
+              mountPath: /garbage-collect.sh
+              subPath: garbage-collect.sh
           readinessProbe:
             failureThreshold: 3
             initialDelaySeconds: 10
@@ -49,6 +59,16 @@ metadata:
   labels:
     app: ttl-registry
 data:
+  entrypoint.sh: |
+    #!/bin/sh
+    set -e
+    echo "* * * * * /garbage-collect.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
+    crond
+    registry serve /etc/docker/registry/config.yml
+  garbage-collect.sh: |
+    #!/bin/sh
+    set -e
+    registry garbage-collect /etc/docker/registry/config.yml
   config.yml: |
     version: 0.1
     log:
