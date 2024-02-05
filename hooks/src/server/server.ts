@@ -21,7 +21,7 @@ if (port == null || port == "") {
   debug: false,
   logger: {
     level: "warn",
-  }
+  },
 })
 
 export class Server extends ServerLoader {

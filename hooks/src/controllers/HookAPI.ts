@@ -57,10 +57,10 @@ export class HookAPI {
         console.log(`parsing tag ${tag}`);
         let expiresIn = durationfromTag(tag);
         if (expiresIn <= 0) {
-          expiresIn = defaultDuration
+          expiresIn = defaultDuration;
         }
         if (expiresIn > maxDuration) {
-          expiresIn = maxDuration
+          expiresIn = maxDuration;
         }
 
         await saddAsync("current.images", imageWithTag);

@@ -11,7 +11,7 @@ deps:
 
 .PHONY: lint
 lint:
-	`npm bin`/tslint --project ./tsconfig.json --fix
+	npx tslint --project ./tsconfig.json --fix
 
 .PHONY: test
 test: build
@@ -19,10 +19,10 @@ test: build
 
 .PHONY: build
 build: prebuild
-	`npm bin`/tsc
+	npx tsc
 
-.PHONY: run
-run:
+.PHONY: hooks
+hooks:
 	node --no-deprecation ./build/server.js hooks
 
 .PHONY: reap

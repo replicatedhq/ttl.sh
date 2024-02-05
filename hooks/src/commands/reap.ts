@@ -5,6 +5,7 @@ import * as redis from "redis";
 import { promisify } from "util";
 import * as rp from "request-promise";
 
+const registryUrl = process.env["REGISTRY_URL"] || "https://ttl.sh";
 const client = redis.createClient({url: process.env["REDISCLOUD_URL"]});
 const smembersAsync = promisify(client.smembers).bind(client);
 const sremAsync = promisify(client.srem).bind(client);
@@ -25,13 +26,13 @@ exports.handler = async (argv) => {
 };
 
 async function main(argv): Promise<any> {
-  process.on('SIGTERM', function onSigterm () {
+  process.on("SIGTERM", function onSigterm() {
     logger.info(`Got SIGTERM, cleaning up`);
     process.exit();
   });
 
   let jobRunning: boolean = false;
-  
+
   const job = new CronJob({
     cronTime: "* * * * *",
     onTick: async () => {
@@ -45,7 +46,7 @@ async function main(argv): Promise<any> {
 
       try {
         await reapExpiredImages();
-      } catch(err) {
+      } catch (err) {
         console.log("failed to reap expired images:", err);
       } finally {
         jobRunning = false;
@@ -73,17 +74,17 @@ async function reapExpiredImages() {
 
       const imageAndTag = image.split(":");
       const headers = {
-        "Accept": "application/vnd.docker.distribution.manifest.v2+json",
+        Accept: "application/vnd.docker.distribution.manifest.v2+json",
       };
 
       // Get the manifest from the tag
       const getOptions = {
         method: "HEAD",
-        uri: `https://ttl.sh/v2/${imageAndTag[0]}/manifests/${imageAndTag[1]}`,
+        uri: `${registryUrl}/v2/${imageAndTag[0]}/manifests/${imageAndTag[1]}`,
         headers,
         resolveWithFullResponse: true,
         simple: false,
-      }
+      };
       const getResponse = await rp(getOptions);
 
       if (getResponse.statusCode == 404) {
@@ -92,7 +93,7 @@ async function reapExpiredImages() {
         continue;
       }
 
-      const deleteURI = `https://ttl.sh/v2/${imageAndTag[0]}/manifests/${getResponse.headers.etag.replace(/"/g,"")}`;
+      const deleteURI = `${registryUrl}/v2/${imageAndTag[0]}/manifests/${getResponse.headers.etag.replace(/"/g, "")}`;
 
       // Remove from the registry
       const options = {
@@ -101,14 +102,14 @@ async function reapExpiredImages() {
         headers,
         resolveWithFullResponse: true,
         simple: false,
-      }
+      };
 
       await rp(options);
 
       console.log(`expiring ${image}`);
       await sremAsync("current.images", image);
       await delAsync(image);
-    } catch(err) {
+    } catch (err) {
       console.log(`failed to evaluate image ${image}:`, err);
     }
   }

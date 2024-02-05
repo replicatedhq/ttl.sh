@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttl-redis
+  labels:
+    app: ttl-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ttl-redis
+  template:
+    metadata:
+      labels:
+        app: ttl-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          readinessProbe:
+            exec:
+              command:
+              - redis-cli
+              - ping
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+            periodSeconds: 3
+      volumes:
+        - name: redis-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ttl-redis
+  labels:
+    app: ttl-redis
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+  selector:
+    app: ttl-redis

@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ttl-registry
+  labels:
+    app: ttl-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ttl-registry
+  template:
+    metadata:
+      labels:
+        app: ttl-registry
+    spec:
+      containers:
+        - name: ttl-registry
+          image: registry:2
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: registry-data
+              mountPath: /var/lib/registry
+            - name: registry-config
+              mountPath: /etc/docker/registry/config.yml
+              subPath: config.yml
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 1
+            successThreshold: 2
+            timeoutSeconds: 1
+            httpGet:
+              path: /
+              port: 5000
+              scheme: HTTP
+      volumes:
+        - name: registry-data
+          emptyDir: {}
+        - name: registry-config
+          configMap:
+            name: registry-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-config
+  labels:
+    app: ttl-registry
+data:
+  config.yml: |
+    version: 0.1
+    log:
+      level: debug
+    storage:
+      delete:
+        enabled: true
+      filesystem:
+        rootdirectory: /var/lib/registry
+    http:
+      addr: 0.0.0.0:5000
+      headers:
+        X-Content-Type-Options: [nosniff]
+    notifications:
+      endpoints:
+        - name: ttl-hooks
+          url: http://ttl-hooks:8000/v1/hook/registry-event
+          headers:
+            Authorization: ["Token dev-hook-token"]
+          timeout: 200ms
+          threshold: 3
+          backoff: 5s
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ttl-registry
+  labels:
+    app: ttl-registry
+  annotations:
+    dev.okteto.com/auto-ingress: "true"
+spec:
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  selector:
+    app: ttl-registry

@@ -122,7 +122,7 @@ export const preRequest = (req: express.Request, reqId: string) => {
 export const requestId = (req: express.Request, handlerName: string) => {
   const id = `${handlerName}:${uuid.v4().replace("-", "").substring(0, 8)}`;
 
-  const clientID: string = <string> req.headers["x-request-uuid"];
+  const clientID: string = req.headers["x-request-uuid"] as string;
 
   if (clientID) {
     return `${id}.${clientID.substring(0, 8)}`;

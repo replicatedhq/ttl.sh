@@ -1,7 +1,6 @@
 import * as util from "util";
 import { Server } from "../server/server";
 import { logger } from "../logger";
-import { param } from "../util";
 
 exports.name = "hooks";
 exports.describe = "Start and run the hook api server";
@@ -17,7 +16,7 @@ exports.handler = async (argv) => {
 };
 
 async function main(argv): Promise<any> {
-  process.on('SIGTERM', function onSigterm () {
+  process.on("SIGTERM", function onSigterm() {
     logger.info(`Got SIGTERM, cleaning up`);
     process.exit();
   });

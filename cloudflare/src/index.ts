@@ -1,5 +1,3 @@
-import { tryParsePutTagRequest, handleTagManifestRequest } from "./tag_manifest";
-
 if (typeof addEventListener === 'function') {
   addEventListener('fetch', (e: Event): void => {
     // work around as strict typescript check doesn't allow e to be of type FetchEvent
