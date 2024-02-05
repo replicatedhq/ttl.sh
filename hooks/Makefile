@@ -21,8 +21,8 @@ test: build
 build: prebuild
 	npx tsc
 
-.PHONY: run
-run:
+.PHONY: hooks
+hooks:
 	node --no-deprecation ./build/server.js hooks
 
 .PHONY: reap
