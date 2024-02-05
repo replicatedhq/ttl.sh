@@ -16,7 +16,7 @@ else
 fi
 
 # Run garbage collection job in background
-echo "* * * * * /garbage-collect.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
+echo "* * * * * /garbage-collect.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/dyno
 crond -l 2
 
 case "$1" in
