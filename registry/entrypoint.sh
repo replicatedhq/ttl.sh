@@ -16,8 +16,8 @@ else
 fi
 
 # Run garbage collection job in background
-echo "0 * * * * /garbage-collect.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
-crond
+echo "* * * * * /garbage-collect.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
+crond -l 2
 
 case "$1" in
     *.yaml|*.yml) set -- registry serve "$@" ;;
