@@ -63,7 +63,7 @@ data:
   entrypoint.sh: |
     #!/bin/sh
     set -e
-    echo "* * * * * /garbage-collect.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
+    echo "0 * * * * /garbage-collect.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
     crond
     registry serve /etc/docker/registry/config.yml
   garbage-collect.sh: |
