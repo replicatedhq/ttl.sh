@@ -13,7 +13,7 @@ function initLogger(): any {
     logger.level = process.env["LOG_LEVEL"] || "warn";
     return logger;
   } else {
-    const logger = pino(logOptions)
+    const logger = pino(logOptions);
     logger.level = process.env["LOG_LEVEL"] || "warn";
     return logger;
   }

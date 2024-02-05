@@ -1,0 +1,37 @@
+build:
+  ttl-hooks:
+    context: ./hooks
+    dockerfile: ./hooks/Dockerfile.hooks
+  ttl-reaper:
+    context: ./hooks
+    dockerfile: ./hooks/Dockerfile.reap
+
+deploy:
+  - cd kustomize/overlays/dev && kustomize edit set image replicated-api=${OKTETO_BUILD_TTL_HOOKS_IMAGE}
+  - cd kustomize/overlays/dev && kustomize edit set image replicated-vendor-api=${OKTETO_BUILD_TTL_REAPER_IMAGE}
+
+  - kubectl apply -k kustomize/overlays/dev
+
+dev:
+  ttl-hooks:
+    command: make deps build && bash || bash
+    workdir: /src
+    sync:
+      - ./hooks:/src
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1Gi
+    forward:
+      - 2400:2400
+  ttl-reaper:
+    command: make deps build && bash || bash
+    workdir: /src
+    sync:
+      - ./hooks:/src
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1Gi
+    forward:
+      - 2401:2400
