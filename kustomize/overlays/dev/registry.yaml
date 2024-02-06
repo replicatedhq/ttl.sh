@@ -63,17 +63,19 @@ data:
   entrypoint.sh: |
     #!/bin/sh
     set -e
-    echo "0 * * * * /garbage-collect.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
-    crond
+    /garbage-collect.sh &
     registry serve /etc/docker/registry/config.yml
   garbage-collect.sh: |
     #!/bin/sh
-    set -e
-    if [ ! -d "/var/lib/registry/docker" ]; then
-      echo "No registry data found, skipping garbage collection"
-      exit 0
-    fi
-    registry garbage-collect /etc/docker/registry/config.yml
+    while true; do
+      sleep 1s
+      if [ ! -d "/var/lib/registry/docker" ]; then
+        echo "No registry data found, skipping garbage collection"
+      else
+        echo "Starting garbage collection..."
+        registry garbage-collect /etc/docker/registry/config.yml || true
+      fi
+    done
 ---
 apiVersion: v1
 kind: ConfigMap
