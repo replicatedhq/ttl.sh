@@ -16,9 +16,7 @@ else
 fi
 
 # Run garbage collection job in background
-echo "* * * * * /garbage-collect.sh >> /proc/1/fd/1 2>&1" > /etc/crontabs/dyno
-chmod 0644 /etc/crontabs/dyno
-crond -l 2
+/garbage-collect.sh &
 
 case "$1" in
     *.yaml|*.yml) set -- registry serve "$@" ;;
