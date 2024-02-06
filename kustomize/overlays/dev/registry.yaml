@@ -68,7 +68,7 @@ data:
   garbage-collect.sh: |
     #!/bin/sh
     while true; do
-      sleep 1s
+      sleep 1m
       if [ ! -d "/var/lib/registry/docker" ]; then
         echo "No registry data found, skipping garbage collection"
       else
