@@ -16,7 +16,7 @@ else
 fi
 
 # Run garbage collection job in background
-/garbage-collect.sh &
+# /garbage-collect.sh &
 
 case "$1" in
     *.yaml|*.yml) set -- registry serve "$@" ;;
