@@ -63,7 +63,7 @@ data:
   entrypoint.sh: |
     #!/bin/sh
     set -e
-    /garbage-collect.sh &
+    # /garbage-collect.sh &
     registry serve /etc/docker/registry/config.yml
   garbage-collect.sh: |
     #!/bin/sh
