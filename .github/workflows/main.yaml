@@ -26,6 +26,15 @@ jobs:
       - name: release registry
         run: heroku container:release -a ttlsh web
 
+      - name: build frontend
+        run: docker build -t registry.heroku.com/ttlsh/frontend frontend
+
+      - name: push frontend
+        run: docker push registry.heroku.com/ttlsh/frontend
+
+      - name: release frontend
+        run: heroku container:release -a ttlsh frontend
+
       - name: build hooks
         run: docker build -f hooks/Dockerfile.hooks -t registry.heroku.com/ttlsh-hooks/web hooks
 
