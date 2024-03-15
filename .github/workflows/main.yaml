@@ -27,13 +27,13 @@ jobs:
         run: heroku container:release -a ttlsh web
 
       - name: build nginx
-        run: docker build -t registry.heroku.com/ttlsh/nginx nginx
+        run: docker build -t registry.heroku.com/ttlsh-router/nginx nginx
 
       - name: push nginx
-        run: docker push registry.heroku.com/ttlsh/nginx
+        run: docker push registry.heroku.com/ttlsh-router/nginx
 
       - name: release nginx
-        run: heroku container:release -a ttlsh nginx
+        run: heroku container:release -a ttlsh-router nginx
 
       - name: build hooks
         run: docker build -f hooks/Dockerfile.hooks -t registry.heroku.com/ttlsh-hooks/web hooks
