@@ -7,26 +7,23 @@ storage:
   delete:
     enabled: true
 
-  filesystem:
-    rootdirectory: /var/lib/registry
-
-  # gcs:
-  #   bucket: replreg
-  #   keyfile: /etc/gcs.json
-  #   rootdirectory: /
+  gcs:
+    bucket: replreg
+    keyfile: /etc/gcs.json
+    rootdirectory: /
 
 http:
-  addr: 0.0.0.0:5000
-  # secret: __REPLREG_SECRET__
-  # host: __REPLREG_HOST__
+  addr: 0.0.0.0:__PORT__
+  secret: __REPLREG_SECRET__
+  host: __REPLREG_HOST__
 
-# notifications:
-#   endpoints:
-#     - name: rgstry-hooks
-#       url: __HOOK_URI__
-#       headers:
-#         Authorization: ["Token __HOOK_TOKEN__"]
-#       timeout: 200ms
-#       threshold: 3
-#       backoff: 5s
+notifications:
+  endpoints:
+    - name: rgstry-hooks
+      url: __HOOK_URI__
+      headers:
+        Authorization: ["Token __HOOK_TOKEN__"]
+      timeout: 200ms
+      threshold: 3
+      backoff: 5s
 
