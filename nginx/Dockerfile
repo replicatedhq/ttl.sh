@@ -9,3 +9,4 @@ COPY src/ttlsh_files /usr/share/nginx/html/ttlsh_files/
 ADD entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
