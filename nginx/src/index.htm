@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>ttl.sh | An anonymous & ephemeral (and free)  Docker image registry</title>
+
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="An anonymous &amp; ephemeral (and free) Docker image registry.">
+    <meta property="og:image" content="">
+
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="shortcut icon" href="">
+    <link href="./ttlsh_files/css" rel="stylesheet">
+    <link rel="stylesheet" href="./ttlsh_files/AllTemplates.min.css">
+
+    <style>
+      @keyframes popinpopup {
+        0% {
+          opacity: 0;
+          transform: translate3d(0, 3px, 0)
+        }
+
+        7%,
+        93% {
+          opacity: 1;
+          transform: translate3d(0, 0, 0)
+        }
+
+        100% {
+          opacity: 0;
+          transform: translate3d(0, -4px, 0)
+        }
+      }
+
+      .launchaco-promo-animate:hover {
+        opacity: 1 !important;
+      }
+    </style>
+
+
+    <style>
+
+    </style>
+  </head>
+
+  <body class="font-hacker">
+    <div class="red-flat">
+      <!---->
+      <header class="header">
+        <div class="container-lrg">
+          <div class="flex col-12 spread"><a class="logo primary-color launchaco-builder-hoverable logo">ttl.sh</a>  <a href="https://www.replicated.com" class="nav-link secondary-color mr0">Contributed by Replicated</a></div>
+        </div>
+      </header>
+      <section class="section">
+        <div class="container mb10">
+          <div class="col-12 text-center">
+            <h1 class="heading-lrg primary-color launchaco-builder-hoverable">Anonymous &amp; ephemeral Docker image registry</h1>
+
+            <!---->
+          </div>
+        </div>
+        <div class="container mt40">
+          <div class="col-12">
+            <div class="codeblock">
+              <pre><code class="hljs bash">
+                  <table class="hljs-ln">
+                        <tbody>
+                                <tr>
+                                    <td class="hljs-ln-code"><div class="hljs-ln-line">$ IMAGE_NAME=$(uuidgen)</div></td>
+                                </tr>
+                                <tr>
+                                    <td class="hljs-ln-code"><div class="hljs-ln-line">$ docker build -t ttl.<span class="hljs-keyword">sh</span>/${IMAGE_NAME}:1h .</div></td>
+                                </tr>
+                                <tr>
+                                    <td class="hljs-ln-code"><div class="hljs-ln-line">$ docker push ttl.<span class="hljs-keyword">sh</span>/${IMAGE_NAME}:1h</div></td>
+                                </tr>
+                                <tr>
+                                    <td class="hljs-ln-code"><div class="hljs-ln-line"> </div></td>
+                                </tr>
+                                <tr>
+                                    <td class="hljs-ln-code"><div class="hljs-ln-line"> ................................................</div></td>
+                                </tr>
+                                <tr>
+                                    <td class="hljs-ln-code"><div class="hljs-ln-line"> image ttl.sh/xxxx-yyyy-nnnn-2a2222-4</span>b44 <span class="hljs-keyword">is</span> available <span class="hljs-keyword">for</span> 1 hour</div></td></tr><tr><td class="hljs-ln-code"><div class="hljs-ln-line"> </div></td>
+                                </tr>
+                                <tr>
+                                    <td class="hljs-ln-code"><div class="hljs-ln-line"> ttl.sh is contributed by <a href="https://www.replicated.com" target="_blank">Replicated (www.replicated.com)</a></div></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                </code></pre>
+            </div>
+            <h2 class="subheading secondary-color mt20 launchaco-builder-hoverable" align="center">Free to use. No need to sign-up. Open source.</h2>
+          </div>
+        </div>
+      </section>
+    </div>
+    <section id="checklist-1" class="section red-white" sitemeta="[object Object]" activepage="Landing">
+      <div class="container text-center">
+        <div class="col-12">
+          <h3 class="heading primary-color launchaco-builder-hoverable">How to use ttl.sh</h3>
+          <!---->
+        </div>
+      </div>
+      <div class="container flex">
+        <ul class="checklist col-12">
+          <li class="checklist-item flex center-horizontal spread pad20 launchaco-builder-hoverable">
+            <p class="bold primary-color mr20">1. Tag your image with  <span style="background-color:#f8f8f8;padding:3px 8px;border-radius:5px;color:#ED2D2D">ttl.sh</span>, a UUID, &amp; time limit (i.e. <span style="background-color:#f8f8f8;padding:3px 8px;border-radius:5px;color:#ED2D2D">:2h</span>)</p> <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="noshrink svg-fill">
+            </svg>
+          </li>
+          <li class="checklist-item flex center-horizontal spread pad20 launchaco-builder-hoverable">
+            <p class="bold primary-color mr20">2. Push your image</p> <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="noshrink svg-fill">
+            </svg>
+          </li>
+          <li class="checklist-item flex center-horizontal spread pad20 launchaco-builder-hoverable">
+            <p class="bold primary-color mr20">3. Pull your image (before it expires)</p> <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="noshrink svg-fill">
+            </svg>
+          </li>
+        </ul>
+      </div>
+      <!---->
+    </section>
+    <section id="feature-2" class="section red-white" sitemeta="[object Object]" activepage="Landing">
+      <div class="container-lrg flex">
+        <div class="col-4 flex mobile-flex-wrap mobile-text-center"><i class="icon secondary-bg mr20 mobile-center-icon launchaco-builder-hoverable"><svg class="svg-fill" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25">
+              <path d="M12.5 0A12.489 12.489 0 0 0 5 22.483a12.432 12.432 0 0 0 14.999 0q.5-.376.96-.799A12.487 12.487 0 0 0 12.5 0zm0 5A3.5 3.5 0 1 1 9 8.5 3.504 3.504 0 0 1 12.5 5zm0 19a11.443 11.443 0 0 1-7.393-2.704 7.489 7.489 0 0 1 14.786 0A11.443 11.443 0 0 1 12.5 24z"></path>
+            </svg></i>
+          <div>
+            <h3 class="bold primary-color launchaco-builder-hoverable">Anonymous</h3>
+            <p class="paragraph secondary-color launchaco-builder-hoverable" style="font-family: Helvetica Neue;font-size:16px">No login required. Image names provide the initial secrecy for access. Add a UUID to your image name to reduce discoverability.</p>
+          </div>
+        </div>
+        <div class="col-4 flex mobile-flex-wrap mobile-text-center"><i class="icon secondary-bg mr20 mobile-center-icon launchaco-builder-hoverable"><svg class="svg-fill" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25">
+              <path d="M9 1.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5zM22 5a1 1 0 1 0-1-1 1 1 0 0 0 1 1zm1 8.5A10.5 10.5 0 1 1 12.5 3 10.5 10.5 0 0 1 23 13.5zm-5.197-5.303a.5.5 0 0 0-.707 0l-3.953 3.953a1.514 1.514 0 1 0 .707.707l3.953-3.953a.5.5 0 0 0 0-.707z"></path>
+            </svg></i>
+          <div>
+            <h3 class="bold primary-color launchaco-builder-hoverable">Ephemeral</h3>
+            <p class="paragraph secondary-color launchaco-builder-hoverable" style="font-family: Helvetica Neue;font-size:16px">Image tags provide the time limit. The default is 24 hours, and the max is 24 hours (valid time tags :5m, :1600s, :4h, :1d)</p>
+          </div>
+        </div>
+        <div class="col-4 flex mobile-flex-wrap mobile-text-center"><i class="icon secondary-bg mr20 mobile-center-icon launchaco-builder-hoverable"><svg class="svg-fill" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25">
+              <path d="M13 20.5a.5.5 0 1 1-.5-.5.5.5 0 0 1 .5.5zm12-3a12.421 12.421 0 0 1-1.838 6.5H1.838A12.495 12.495 0 1 1 25 17.5zm-7.197-2.303a.5.5 0 0 0-.707 0l-3.953 3.953a1.514 1.514 0 1 0 .707.707l3.953-3.953a.5.5 0 0 0 0-.707zM23 17.5a10.5 10.5 0 0 0-21 0 .5.5 0 0 0 1 0 9.5 9.5 0 0 1 19 0 .5.5 0 0 0 1 0z"></path>
+            </svg></i>
+          <div>
+            <h3 class="bold primary-color launchaco-builder-hoverable">Fast</h3>
+            <p class="paragraph secondary-color launchaco-builder-hoverable" style="font-family: Helvetica Neue;font-size:16px">Pulling images is really quick, so it just works thanks to Cloudflare. Even if you aren't near us-east-1.</p>
+          </div>
+        </div>
+      </div>
+      <!---->
+    </section>
+
+
+    <section id="checklist-1" class="section red-white" sitemeta="[object Object]" activepage="Landing">
+      <div class="container text-center">
+        <div class="col-12">
+          <h3 class="heading primary-color launchaco-builder-hoverable">How we're using it</h3>
+          <!---->
+        </div>
+      </div>
+      <div class="container mt40">
+        <h3 class="bold primary-color launchaco-builder-hoverable"  style="font-family: Helvetica Neue">Workflows in CI</h3>
+        <p class="paragraph launchaco-builder-hoverable" style="font-family: Helvetica Neue;font-size:18px">Many workflows in CI will build an image, and then subsequent steps will test that image in parallel. Docker registries are a commonly used storage mechanism for these intermediate build artifacts. One build step can push an image, and other distributed steps can pull. The challenge is that most registries require authentication to push and pull. A workflow can either bake credentials in and share them to build workers, or require forked builds to bring their own registry credentials. The first is insecure, the second creates friction for new contributors. </p>
+        <br>
+        <p class="paragraph launchaco-builder-hoverable" style="font-family: Helvetica Neue;font-size:18px">ttl.sh solves this by making an ephemeral and anonymous registry.</p>
+      </div>
+      <!---->
+    </section>
+
+    <footer id="footer-3" class="section text-center red-white" sitemeta="[object Object]" activepage="Landing">
+      <div class="container col-12">
+        <nav class="mb10"><a target="_blank" href="http://www.replicated.com/" class="nav-link secondary-color">Contributed by Replicated</a></nav>
+        <div><a href="https://twitter.com/replicatedhq" target="_blank" class="socialicons accent-bg twitter"></a><a href="https://github.com/replicatedhq/ttl.sh" target="_blank" class="socialicons accent-bg github"></a></div>
+        <div class="mt50"><span class="span secondary-color">©</span> <span class="span secondary-color">Replicated Inc 2022</span></div>
+      </div>
+    </footer>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-61420213-9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-61420213-9');
+</script>
+
+<script type="text/javascript">
+  var _paq = _paq || [];
+
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//data-2.replicated.com/";
+    _paq.push(['setTrackerUrl', u+'data/']);
+    _paq.push(['setSiteId', '7']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'js/'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+
+</body></html>
