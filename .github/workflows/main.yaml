@@ -54,7 +54,7 @@ jobs:
         run: heroku container:release -a ttlsh-hooks reap
 
       - name: build blob reaper
-        run: docker build -f Dockerfile.blob-reap -t registry.heroku.com/ttlsh-hooks/blob-reap registry
+        run: docker build -f registry/Dockerfile.blob-reap -t registry.heroku.com/ttlsh-hooks/blob-reap registry
 
       - name: push blob reaper
         run: docker push registry.heroku.com/ttlsh-hooks/blob-reap
