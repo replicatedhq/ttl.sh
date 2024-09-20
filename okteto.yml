@@ -13,7 +13,7 @@ build:
     dockerfile: ./hooks/Dockerfile.reap
 
 deploy:
-  - cd kustomize/overlays/dev && kustomize edit set image ttl-registry=${OKTETO_BUILD_REGISTRY_IMAGE}
+  - cd kustomize/overlays/dev && kustomize edit set image ttl-registry=${OKTETO_BUILD_TTL_REGISTRY_IMAGE}
   - cd kustomize/overlays/dev && kustomize edit set image ttl-blob-reap=${OKTETO_BUILD_TTL_BLOB_REAP_IMAGE}
   - cd kustomize/overlays/dev && kustomize edit set image ttl-hooks=${OKTETO_BUILD_TTL_HOOKS_IMAGE}
   - cd kustomize/overlays/dev && kustomize edit set image ttl-reaper=${OKTETO_BUILD_TTL_REAPER_IMAGE}
