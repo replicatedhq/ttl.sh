@@ -1,0 +1,9 @@
+# built from https://github.com/sgalsaleh/distribution/tree/custom-garbage-collect
+FROM replicated/registry-blob-reap:latest
+
+ADD ./entrypoint.sh /entrypoint.sh
+ADD ./config.yml /etc/docker/registry/config.yml
+ADD ./garbage-collect.sh /garbage-collect.sh
+
+ENTRYPOINT ["/garbage-collect.sh"]
+CMD ["/etc/docker/registry/config.yml"]
