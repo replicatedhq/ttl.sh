@@ -17,7 +17,7 @@ spec:
       containers:
         - name: ttl-registry
           image: ttl-registry
-          command: ["/entrypoint.sh"]
+          command: ["registry", "serve", "/etc/docker/registry/config.yml"]
           ports:
             - containerPort: 5000
           volumeMounts:
