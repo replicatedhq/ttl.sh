@@ -2,8 +2,11 @@
 FROM replicated/registry-blob-reap:latest
 
 ADD ./entrypoint.sh /entrypoint.sh
-ADD ./config.yml /etc/docker/registry/config.yml
+ADD ./config.yml /etc/docker/registry/config.tmpl.yml
 ADD ./garbage-collect.sh /garbage-collect.sh
+
+# entrypoint.sh will copy config.tmpl.yml to config.yml and replace variables
+RUN rm -f /etc/docker/registry/config.yml
 
 ENTRYPOINT ["/garbage-collect.sh"]
 CMD ["/etc/docker/registry/config.yml"]
