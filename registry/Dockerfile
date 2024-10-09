@@ -8,4 +8,4 @@ ADD ./garbage-collect.sh /garbage-collect.sh
 RUN rm -f /etc/docker/registry/config.yml
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/etc/docker/registry/config.yml"]
+CMD ["registry", "serve", "/etc/docker/registry/config.yml"]
