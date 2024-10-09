@@ -11,7 +11,7 @@ jobs:
     env:
       HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v2
 
       - name: install heroku cli
@@ -55,12 +55,3 @@ jobs:
 
       - name: release reaper
         run: heroku container:release -a ttlsh-hooks reap
-
-      - name: build blob reaper
-        run: docker build -f registry/Dockerfile.blob-reap -t registry.heroku.com/ttlsh-hooks/blob-reap registry
-
-      - name: push blob reaper
-        run: docker push registry.heroku.com/ttlsh-hooks/blob-reap
-
-      - name: release blob reaper
-        run: heroku container:release -a ttlsh-hooks blob-reap
