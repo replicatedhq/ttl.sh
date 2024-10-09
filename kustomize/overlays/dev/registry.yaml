@@ -16,19 +16,13 @@ spec:
     spec:
       containers:
         - name: ttl-registry
-          image: registry:2
-          command: ["/entrypoint.sh"]
+          image: ttl-registry
+          command: ["registry", "serve", "/etc/docker/registry/config.yml"]
           ports:
             - containerPort: 5000
           volumeMounts:
             - name: registry-data
               mountPath: /var/lib/registry
-            - name: registry-scripts
-              mountPath: /entrypoint.sh
-              subPath: entrypoint.sh
-            - name: registry-scripts
-              mountPath: /garbage-collect.sh
-              subPath: garbage-collect.sh
             - name: registry-config
               mountPath: /etc/docker/registry/config.yml
               subPath: config.yml
@@ -42,40 +36,21 @@ spec:
               path: /
               port: 5000
               scheme: HTTP
+        - name: ttl-blob-reap
+          image: ttl-blob-reap
+          command: ["/garbage-collect.sh"]
+          volumeMounts:
+            - name: registry-data
+              mountPath: /var/lib/registry
+            - name: registry-config
+              mountPath: /etc/docker/registry/config.yml
+              subPath: config.yml
       volumes:
         - name: registry-data
           emptyDir: {}
         - name: registry-config
           configMap:
             name: ttl-registry-config
-        - name: registry-scripts
-          configMap:
-            name: ttl-registry-scripts
-            defaultMode: 0755
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ttl-registry-scripts
-  labels:
-    app: ttl-registry
-data:
-  entrypoint.sh: |
-    #!/bin/sh
-    set -e
-    # /garbage-collect.sh &
-    registry serve /etc/docker/registry/config.yml
-  garbage-collect.sh: |
-    #!/bin/sh
-    while true; do
-      sleep 1m
-      if [ ! -d "/var/lib/registry/docker" ]; then
-        echo "No registry data found, skipping garbage collection"
-      else
-        echo "Starting garbage collection..."
-        registry garbage-collect /etc/docker/registry/config.yml || true
-      fi
-    done
 ---
 apiVersion: v1
 kind: ConfigMap
