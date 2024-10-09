@@ -1,4 +1,5 @@
-FROM registry:2.7.1
+# built from https://github.com/sgalsaleh/distribution/tree/custom-garbage-collect
+FROM replicated/registry-blob-reap:latest
 
 ADD ./entrypoint.sh /entrypoint.sh
 ADD ./config.yml /etc/docker/registry/config.tmpl.yml
@@ -8,4 +9,4 @@ ADD ./garbage-collect.sh /garbage-collect.sh
 RUN rm -f /etc/docker/registry/config.yml
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["registry", "serve", "/etc/docker/registry/config.yml"]
+CMD ["/garbage-collect.sh"]
