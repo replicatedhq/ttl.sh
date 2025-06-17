@@ -42,3 +42,48 @@ Okteto is utilized for debugging. New build targets have been added to allow bui
 5. (test changes, find they don't work, make more changes)...
 6. `okteto down`
 7. (commit code, and be happy)
+
+
+## Running the Registry Locally (MacBook Example)
+
+1. **Prepare the data directory:**
+
+   ```sh
+   cd registry/
+   mkdir -p data
+   chmod 777 data
+   ```
+
+2. **Build the Docker image:**
+
+   ```sh
+   docker build -t my-ttlsh:latest .
+   ```
+
+3. **Run the registry container:**
+
+   ```sh
+   docker run -d \
+     -p 5000:5000 \
+     --name ttlsh \
+     -e PORT=5000 \
+     -e HOOK_TOKEN=localtoken \
+     -e HOOK_URI=http://localhost:9999/hook \
+     -e REPLREG_HOST=localhost:5000 \
+     -e REPLREG_SECRET=localsecret \
+     -v ttlsh-data:/var/lib/registry \
+     my-ttlsh:latest
+   ```
+
+4. **Verify the registry is running:**
+
+   - Check logs:
+     ```sh
+     docker logs ttlsh
+     ```
+   - Test the registry API:
+     ```sh
+     curl http://localhost:5000/v2/
+     ```
+
+This will start the Docker registry with your local configuration and environment variables.
