@@ -1,0 +1,94 @@
+services:
+  registry:
+    image: us-east4-docker.pkg.dev/rgstry/ttl-sh-registry/registry:latest
+    build:
+      context: registry
+      dockerfile: Dockerfile
+      platforms:
+        - "linux/amd64"
+    container_name: ttlsh-registry
+    restart: always
+    pull_policy: always
+    env_file: ".env"
+    environment:
+      - PORT=5000
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    networks:
+      - ttlsh-network
+
+  hooks:
+    image: us-east4-docker.pkg.dev/rgstry/ttl-sh-hooks/hooks:latest
+    build:
+      context: hooks
+      dockerfile: Dockerfile.hooks
+      platforms:
+        - "linux/amd64"
+    container_name: ttlsh-hooks
+    restart: always
+    pull_policy: always
+    env_file: ".env"
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    networks:
+      - ttlsh-network
+
+  reaper:
+    image: us-east4-docker.pkg.dev/rgstry/ttl-sh-reap/reaper:latest
+    build:
+      context: hooks
+      dockerfile: Dockerfile.reap
+      platforms:
+        - "linux/amd64"
+    container_name: ttlsh-reaper
+    restart: always
+    pull_policy: always
+    env_file: ".env"
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - ttlsh-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ttlsh-redis
+    restart: always
+    pull_policy: always
+    env_file: ".env"
+    ports:
+      - "6379:6379"
+    networks:
+      - ttlsh-network
+    volumes:
+      - ./redis/data:/data
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+
+  nginx:
+    image: us-east4-docker.pkg.dev/rgstry/ttl-sh-nginx/nginx:latest
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+      platforms:
+        - "linux/amd64"
+    container_name: ttlsh-nginx
+    restart: always
+    pull_policy: always
+    environment:
+      - PORT=80
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - registry
+    networks:
+      - ttlsh-network
+
+networks:
+  ttlsh-network:
+    driver: bridge

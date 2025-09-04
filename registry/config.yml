@@ -2,6 +2,7 @@ version: 0.1
 
 log:
   level: info
+  formatter: text
 
 storage:
   delete:
@@ -16,14 +17,20 @@ http:
   addr: 0.0.0.0:__PORT__
   secret: __REPLREG_SECRET__
   host: __REPLREG_HOST__
+  debug:
+    addr: 0.0.0.0:5001
+    prometheus:
+      enabled: false
 
 notifications:
+  events:
+    includereferences: true
   endpoints:
-    - name: rgstry-hooks
+    - name: registry-hooks
+      disabled: false
       url: __HOOK_URI__
       headers:
         Authorization: ["Token __HOOK_TOKEN__"]
-      timeout: 200ms
-      threshold: 3
-      backoff: 5s
-
+      timeout: 1s
+      threshold: 10
+      backoff: 1s
