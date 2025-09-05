@@ -1,0 +1,45 @@
+---
+# Domain to provision
+domain_name: ttl.sh
+
+# Compute zone name from domain (ttl.sh)
+zone_name: "ttl.sh"
+
+# Cloudflare details
+cloudflare_zone_id: "_in_doppler"
+cloudflare_api_token: "_in_doppler"
+cloudflare_email: "_in_doppler"
+cloudflare_proxied: false
+
+# A record target
+target_ip: 178.156.198.215
+
+# Let's Encrypt contact email (using provided email)
+le_email: "_in_doppler"
+
+# Repo path (relative to repo root) for static assets; easy to change later
+static_site_repo_path: static
+
+# Google Cloud (gcloud) configuration
+# Provide the service account email and base64-encoded JSON key to configure auth.
+gcloud_sa_email: "_in_doppler"
+gcloud_sa_key_json: "_in_doppler"
+# Artifact Registry hostname to configure Docker for
+gcloud_registry_host: "_in_doppler"
+
+# Docker install settings
+docker_users:
+  - root
+
+# Application deployment
+app_root: /opt/ttlsh
+
+# Docker Compose .env
+gcs_key_encoded: "_in_doppler"
+hook_token: "_in_doppler"
+hook_uri: "_in_doppler"
+redis_password: "_in_doppler"
+rediscloud_url: "_in_doppler"
+replreg_host: "_in_doppler"
+replreg_secret: "_in_doppler"
+registry_url: "_in_doppler"

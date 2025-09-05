@@ -1,0 +1,285 @@
+---
+# Single play: run everything against the remote host
+- name: Install and configure Nginx + Certbot (Cloudflare DNS-01)
+  hosts: ttlsh
+  become: true
+  vars:
+    site_dir: "/var/www/{{ domain_name }}/html"
+    cloudflare_credentials_path: /etc/letsencrypt/cloudflare.ini
+    # derive DNS record prefix, e.g. 'dev' for dev.ttl.sh
+    dns_record: "{{ '@' if domain_name == zone_name else domain_name[:-(zone_name|length + 1)] }}"
+    # repo-relative source for static assets
+    static_src_path: "{{ playbook_dir }}/../../{{ static_site_repo_path }}/"
+  pre_tasks: []
+  tasks:
+    - name: Ensure Cloudflare API token present
+      ansible.builtin.assert:
+        that: cloudflare_api_token is defined and (cloudflare_api_token | length) > 0
+        fail_msg: "cloudflare_api_token is missing."
+
+    - name: Ensure A record for {{ domain_name }} -> {{ target_ip }} (Cloudflare)
+      community.general.cloudflare_dns:
+        zone: "{{ zone_name }}"
+        record: "{{ dns_record }}"
+        type: A
+        value: "{{ target_ip }}"
+        proxied: "{{ cloudflare_proxied }}"
+        api_token: "{{ cloudflare_api_token }}"
+
+    - name: Install packages
+      ansible.builtin.apt:
+        name:
+          - nginx
+          - certbot
+          - python3-certbot-dns-cloudflare
+        update_cache: true
+        state: present
+
+    - name: Ensure nginx is enabled and started
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Write Cloudflare credentials for Certbot
+      ansible.builtin.template:
+        src: ../templates/cloudflare.ini.j2
+        dest: "{{ cloudflare_credentials_path }}"
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: Check if certificate already exists
+      ansible.builtin.stat:
+        path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+      register: cert_stat
+
+    - name: Obtain certificate using DNS-01 (Cloudflare)
+      ansible.builtin.command: >-
+        certbot certonly
+        --agree-tos
+        --email {{ le_email }}
+        --key-type ecdsa
+        --elliptic-curve secp384r1
+        --dns-cloudflare
+        --dns-cloudflare-credentials {{ cloudflare_credentials_path }}
+        --dns-cloudflare-propagation-seconds 60
+        -d {{ domain_name }}
+        --non-interactive
+      args:
+        creates: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+      when: not cert_stat.stat.exists
+
+    - name: Create web root
+      ansible.builtin.file:
+        path: "{{ site_dir }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: "0755"
+        recurse: true
+
+    - name: Deploy static assets from repo
+      ansible.builtin.copy:
+        src: "{{ static_src_path }}"
+        dest: "{{ site_dir }}/"
+        owner: www-data
+        group: www-data
+        mode: "0644"
+        directory_mode: "0755"
+
+    - name: Remove legacy test index.html if present
+      ansible.builtin.file:
+        path: "{{ site_dir }}/index.html"
+        state: absent
+
+    - name: Drop Nginx site config (TLS enabled)
+      ansible.builtin.template:
+        src: ../templates/nginx_site.conf.j2
+        dest: "/etc/nginx/sites-available/{{ domain_name }}"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Disable default site if present (available)
+      ansible.builtin.file:
+        path: /etc/nginx/sites-available/default
+        state: absent
+
+    - name: Disable default site if present (enabled)
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Enable {{ domain_name }} site
+      ansible.builtin.file:
+        src: "/etc/nginx/sites-available/{{ domain_name }}"
+        dest: "/etc/nginx/sites-enabled/{{ domain_name }}"
+        state: link
+        force: true
+
+    - name: Test nginx configuration
+      ansible.builtin.command: nginx -t
+      register: nginx_test
+      changed_when: false
+
+    - name: Reload nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
+
+    - name: Ensure nginx reloads on renewal
+      ansible.builtin.copy:
+        dest: /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
+        content: |
+          #!/bin/sh
+          /bin/systemctl reload nginx
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Add cron to renew twice daily
+      ansible.builtin.cron:
+        name: "Certbot renew"
+        user: root
+        minute: "0"
+        hour: "*/12"
+        job: "/usr/bin/certbot renew -q"
+
+    # --- Google Cloud CLI install and configuration ---
+    - name: Install Google Cloud CLI (role)
+      ansible.builtin.include_role:
+        name: google.cloud.gcloud
+
+    - name: Ensure gcloud key directory exists
+      ansible.builtin.file:
+        path: /root/.gcloud
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+      when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0
+
+    - name: Write GCP service account key (decoded from base64)
+      ansible.builtin.copy:
+        dest: /root/.gcloud/sa.json
+        content: "{{ gcloud_sa_key_json | b64decode }}"
+        owner: root
+        group: root
+        mode: "0600"
+      when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0
+
+    - name: Check existing gcloud authenticated accounts
+      ansible.builtin.command: gcloud auth list --format=value(account)
+      register: gcloud_auth_list
+      changed_when: false
+      failed_when: false
+      environment:
+        CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
+      when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0
+
+    - name: Activate service account for gcloud
+      ansible.builtin.command: >-
+        gcloud auth activate-service-account {{ gcloud_sa_email }}
+        --key-file=/root/.gcloud/sa.json --quiet
+      environment:
+        CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
+      when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0 and (gcloud_sa_email not in (gcloud_auth_list.stdout_lines | default([])))
+
+    - name: Configure Docker auth for Artifact Registry
+      ansible.builtin.command: >-
+        gcloud auth configure-docker {{ gcloud_registry_host }} --quiet
+      environment:
+        CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
+      when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0
+
+    # --- Docker Engine + Compose install ---
+    - name: Install Docker prereqs
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: true
+
+    - name: Ensure keyrings directory exists
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Add Docker GPG key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+        force: true
+
+    - name: Determine deb arch for Docker repo
+      ansible.builtin.set_fact:
+        docker_deb_arch: >-
+          {{ 'arm64' if ansible_architecture in ['aarch64', 'arm64'] else 'amd64' }}
+
+    - name: Add Docker apt repository
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [arch={{ docker_deb_arch }} signed-by=/etc/apt/keyrings/docker.asc]
+          https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        filename: docker
+        state: present
+        update_cache: true
+
+    - name: Install Docker Engine and Compose plugin
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Enable and start Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Add users to docker group
+      ansible.builtin.user:
+        name: "{{ item }}"
+        groups: docker
+        append: true
+      loop: "{{ docker_users | default([]) }}"
+      ignore_errors: true
+
+    # --- Deploy docker-compose app and start services ---
+    - name: Ensure app root exists
+      ansible.builtin.file:
+        path: "{{ app_root }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy docker-compose.yaml to host
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../docker-compose.yaml"
+        dest: "{{ app_root }}/docker-compose.yaml"
+        mode: "0644"
+
+    - name: Render .env file
+      ansible.builtin.template:
+        src: ../templates/env.j2
+        dest: "{{ app_root }}/.env"
+        mode: "0600"
+
+    - name: Pull images
+      ansible.builtin.command: docker compose -f {{ app_root }}/docker-compose.yaml pull
+      args:
+        chdir: "{{ app_root }}"
+
+    - name: Start services
+      ansible.builtin.command: docker compose -f {{ app_root }}/docker-compose.yaml up -d
+      args:
+        chdir: "{{ app_root }}"

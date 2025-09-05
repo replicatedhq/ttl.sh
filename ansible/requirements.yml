@@ -1,0 +1,5 @@
+---
+collections:
+  - name: community.general
+  - name: google.cloud
+  - name: community.docker

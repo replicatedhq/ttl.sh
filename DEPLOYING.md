@@ -29,10 +29,7 @@
 1. Doppler is installed and authenticated for use with the `ttl-sh` project
     a. Have a valid `DOPPLER_TOKEN` from `ttl-sh` set
     b. `echo $DOPPLER_TOKEN | doppler configure set token --scope /`
-2. `./install.sh`
-3. Successful run states:
-    a. `Container ttlsh-redis  Started`
-    b. `Container ttlsh-hooks  Started`
-    b. `Container ttlsh-reaper  Started`
-    c. `Container ttlsh-registry  Started`
-    d. `Container ttlsh-nginx  Started`
+2. `cd ansible`
+3. `./ansible.sh`
+4. Successful run indicates approximately the following:
+    a. `ok=42   changed=6    unreachable=0    failed=0    skipped=3`
