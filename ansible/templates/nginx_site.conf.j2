@@ -1,0 +1,47 @@
+server {
+    listen 80;
+    server_name {{ domain_name }};
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name {{ domain_name }};
+
+    ssl_certificate     /etc/letsencrypt/live/{{ domain_name }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ domain_name }}/privkey.pem;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:10m;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+
+    root /var/www/{{ domain_name }}/html;
+    index index.htm index.html;
+
+    # Static site
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Block listing catalog
+    location ~ v2/_catalog$ {
+        return 401;
+    }
+
+    # Docker Registry proxy
+    location /v2 {
+        client_max_body_size    10000m;
+        client_body_timeout     3600s;
+        proxy_connect_timeout   300s;
+        proxy_send_timeout      3600s;
+        proxy_read_timeout      3600s;
+        send_timeout            3600s;
+        proxy_pass              http://127.0.0.1:5000;
+        proxy_set_header        X-Forwarded-Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_set_header        Host $host;
+        proxy_request_buffering off;
+    }
+}

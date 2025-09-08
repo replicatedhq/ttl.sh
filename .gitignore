@@ -1,1 +1,3 @@
 deploy
+terraform/staging/knowledge/*
+.terraform
