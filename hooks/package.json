@@ -21,7 +21,7 @@
     "randomstring": "^1.1.5",
     "redis": "^2.8.0",
     "request": "^2.88.0",
-    "request-promise": "^4.2.4",
+    "request-promise": "^4.2.6",
     "simple-oauth2": "^2.2.1",
     "source-map-support": "^0.5.10",
     "ts-express-decorators": "^5.14.1",
