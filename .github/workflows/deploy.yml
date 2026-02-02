@@ -1,4 +1,4 @@
-name: Deploy ttl.sh
+name: Deploy ttl.sh (DRY RUN)
 
 on:
   push:
@@ -34,10 +34,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push images
+      - name: Build images (dry run - no push)
         run: |
           docker compose build
-          docker compose push
+          echo "✅ Build succeeded - skipping push (dry run mode)"
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
 
@@ -65,12 +65,13 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 178.156.198.215 >> ~/.ssh/known_hosts
 
-      - name: Run Ansible deployment
+      - name: Run Ansible deployment (dry run)
         working-directory: ./ansible
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         run: |
-          ansible-playbook \
+          echo "🔍 Running Ansible in check mode (dry run - no changes will be made)"
+          ansible-playbook --check \
             -e "cloudflare_api_token=$(doppler secrets get CF_API_TOKEN --plain)" \
             -e "cloudflare_zone_id=$(doppler secrets get CF_ZONE_ID --plain)" \
             -e "cloudflare_email=$(doppler secrets get LE_EMAIL --plain)" \
