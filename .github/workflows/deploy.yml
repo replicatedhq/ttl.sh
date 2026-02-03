@@ -11,26 +11,27 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false  # Don't cancel in-progress deploys
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/ttlsh
+
 jobs:
   build-and-push:
     name: Build & Push Images
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v3
-
-      - name: Authenticate to GCP Artifact Registry
-        run: |
-          # Get GCP credentials from Doppler and configure Docker
-          doppler secrets get GCS_KEY_ENCODED --plain | base64 -d > /tmp/gcp-key.json
-          gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
-          gcloud auth configure-docker us-east4-docker.pkg.dev --quiet
-          rm /tmp/gcp-key.json
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -41,8 +42,6 @@ jobs:
           touch .env
           docker compose build
           docker compose push
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
 
   deploy:
     name: Deploy to Production
@@ -59,7 +58,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ansible
-          ansible-galaxy collection install community.general google.cloud community.docker
+          ansible-galaxy collection install community.general community.docker
 
       - name: Setup SSH key
         run: |
@@ -80,7 +79,6 @@ jobs:
             -e "le_email=$(doppler secrets get LE_EMAIL --plain)" \
             -e "gcloud_sa_email=$(doppler secrets get GOOGLE_APPLICATION_CREDENTIALS_EMAIL --plain)" \
             -e "gcloud_sa_key_json=$(doppler secrets get GCS_KEY_ENCODED --plain)" \
-            -e "gcloud_registry_host=$(doppler secrets get GOOGLE_CLOUD_ARTIFACT_REGISTRY_URI --plain)" \
             -e "gcs_key_encoded=$(doppler secrets get GCS_KEY_ENCODED --plain)" \
             -e "hook_token=$(doppler secrets get HOOK_TOKEN --plain)" \
             -e "hook_uri=$(doppler secrets get HOOK_URI --plain)" \
@@ -89,4 +87,5 @@ jobs:
             -e "replreg_host=$(doppler secrets get REPLREG_HOST --plain)" \
             -e "replreg_secret=$(doppler secrets get REPLREG_SECRET --plain)" \
             -e "registry_url=$(doppler secrets get REGISTRY_URL --plain)" \
+            -e "ghcr_token=$(doppler secrets get GHCR_TOKEN --plain 2>/dev/null || echo '')" \
             playbooks/site.yml
