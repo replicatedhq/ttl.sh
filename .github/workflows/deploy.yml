@@ -88,3 +88,49 @@ jobs:
             -e "replreg_secret=$(doppler secrets get REPLREG_SECRET --plain)" \
             -e "registry_url=$(doppler secrets get REGISTRY_URL --plain)" \
             playbooks/site.yml
+
+  smoke-test:
+    name: Smoke Test (Push/Pull/TTL)
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Test push and pull
+        run: |
+          IMAGE="ttl.sh/smoke-${{ github.sha }}:5m"
+          echo "🧪 Testing with image: $IMAGE"
+          
+          # Use busybox - tiny image (~1MB)
+          docker pull busybox:latest
+          docker tag busybox:latest "$IMAGE"
+          
+          echo "📤 Pushing image..."
+          docker push "$IMAGE"
+          
+          # Remove local copy to force pull from registry
+          docker rmi "$IMAGE"
+          
+          echo "📥 Pulling image back..."
+          docker pull "$IMAGE"
+          
+          echo "✅ Push/pull test passed!"
+
+      - name: Wait for TTL expiry
+        run: |
+          echo "⏳ Waiting 7 minutes for 5m TTL to expire..."
+          sleep 420
+
+      - name: Verify image expired
+        run: |
+          IMAGE="ttl.sh/smoke-${{ github.sha }}:5m"
+          echo "🔍 Verifying image has expired..."
+          
+          # Remove local copy if cached
+          docker rmi "$IMAGE" 2>/dev/null || true
+          
+          # Try to pull - should fail
+          if docker pull "$IMAGE" 2>&1; then
+            echo "❌ ERROR: Image still exists after TTL expiry!"
+            exit 1
+          else
+            echo "✅ Image correctly expired and unavailable!"
+          fi
