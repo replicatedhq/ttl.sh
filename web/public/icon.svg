@@ -1,0 +1,17 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="180" height="180" rx="40" fill="url(#grad)"/>
+  <!-- Clock circle -->
+  <circle cx="90" cy="95" r="55" fill="none" stroke="white" stroke-width="8" opacity="0.9"/>
+  <!-- Clock hands -->
+  <line x1="90" y1="95" x2="90" y2="55" stroke="white" stroke-width="8" stroke-linecap="round"/>
+  <line x1="90" y1="95" x2="120" y2="95" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <!-- Top notch (like a timer) -->
+  <rect x="82" y="28" width="16" height="20" rx="4" fill="white"/>
+</svg>
