@@ -1,6 +1,6 @@
 services:
   web:
-    image: us-east4-docker.pkg.dev/rgstry/ttl-sh-web/web:latest
+    image: ghcr.io/replicatedhq/ttlsh-web:latest
     build:
       context: web
       dockerfile: Dockerfile
