@@ -3,7 +3,8 @@ name: Deploy ttl.sh
 on:
   push:
     branches:
-      - main
+      - prerelease  # Temporary: deploy on prerelease for testing
+      # - main      # TODO: Switch back to main after testing
   workflow_dispatch:  # Manual trigger for emergencies
 
 concurrency:
