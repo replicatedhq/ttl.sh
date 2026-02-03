@@ -87,5 +87,4 @@ jobs:
             -e "replreg_host=$(doppler secrets get REPLREG_HOST --plain)" \
             -e "replreg_secret=$(doppler secrets get REPLREG_SECRET --plain)" \
             -e "registry_url=$(doppler secrets get REGISTRY_URL --plain)" \
-            -e "ghcr_token=$(doppler secrets get GHCR_TOKEN --plain 2>/dev/null || echo '')" \
             playbooks/site.yml

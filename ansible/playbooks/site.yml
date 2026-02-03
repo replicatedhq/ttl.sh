@@ -186,11 +186,7 @@
         CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
       when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0 and (gcloud_sa_email not in (gcloud_auth_list.stdout_lines | default([])))
 
-    - name: Log in to GitHub Container Registry
-      ansible.builtin.command: >-
-        docker login ghcr.io -u replicatedhq -p {{ ghcr_token }}
-      when: ghcr_token is defined and (ghcr_token | length) > 0
-      no_log: true
+    # GHCR packages are public - no login needed for pulls
 
     # --- Docker Engine + Compose install ---
     - name: Install Docker prereqs
