@@ -37,6 +37,8 @@ jobs:
 
       - name: Build and push images
         run: |
+          # Create empty .env file (docker-compose references it, but it's only needed at runtime)
+          touch .env
           docker compose build
           docker compose push
         env:
