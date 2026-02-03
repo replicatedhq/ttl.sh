@@ -1,45 +1,47 @@
-name: Deploy ttl.sh (DRY RUN)
+name: Deploy ttl.sh
 
 on:
   push:
     branches:
-      - main
+      - prerelease  # Temporary: deploy on prerelease for testing
+      # - main      # TODO: Switch back to main after testing
   workflow_dispatch:  # Manual trigger for emergencies
 
 concurrency:
   group: deploy-production
   cancel-in-progress: false  # Don't cancel in-progress deploys
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/ttlsh
+
 jobs:
   build-and-push:
     name: Build & Push Images
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Doppler CLI
-        uses: dopplerhq/cli-action@v3
-
-      - name: Authenticate to GCP Artifact Registry
-        run: |
-          # Get GCP credentials from Doppler and configure Docker
-          doppler secrets get GCS_KEY_ENCODED --plain | base64 -d > /tmp/gcp-key.json
-          gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
-          gcloud auth configure-docker us-east4-docker.pkg.dev --quiet
-          rm /tmp/gcp-key.json
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build images (dry run - no push)
+      - name: Build and push images
         run: |
+          # Create empty .env file (docker-compose references it, but it's only needed at runtime)
+          touch .env
           docker compose build
-          echo "✅ Build succeeded - skipping push (dry run mode)"
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          docker compose push
 
   deploy:
     name: Deploy to Production
@@ -56,7 +58,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ansible
-          ansible-galaxy collection install community.general google.cloud community.docker
+          ansible-galaxy collection install community.general community.docker
 
       - name: Setup SSH key
         run: |
@@ -65,20 +67,18 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 178.156.198.215 >> ~/.ssh/known_hosts
 
-      - name: Run Ansible deployment (dry run)
+      - name: Run Ansible deployment
         working-directory: ./ansible
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         run: |
-          echo "🔍 Running Ansible in check mode (dry run - no changes will be made)"
-          ansible-playbook --check \
+          ansible-playbook \
             -e "cloudflare_api_token=$(doppler secrets get CF_API_TOKEN --plain)" \
             -e "cloudflare_zone_id=$(doppler secrets get CF_ZONE_ID --plain)" \
             -e "cloudflare_email=$(doppler secrets get LE_EMAIL --plain)" \
             -e "le_email=$(doppler secrets get LE_EMAIL --plain)" \
             -e "gcloud_sa_email=$(doppler secrets get GOOGLE_APPLICATION_CREDENTIALS_EMAIL --plain)" \
             -e "gcloud_sa_key_json=$(doppler secrets get GCS_KEY_ENCODED --plain)" \
-            -e "gcloud_registry_host=$(doppler secrets get GOOGLE_CLOUD_ARTIFACT_REGISTRY_URI --plain)" \
             -e "gcs_key_encoded=$(doppler secrets get GCS_KEY_ENCODED --plain)" \
             -e "hook_token=$(doppler secrets get HOOK_TOKEN --plain)" \
             -e "hook_uri=$(doppler secrets get HOOK_URI --plain)" \
@@ -88,3 +88,28 @@ jobs:
             -e "replreg_secret=$(doppler secrets get REPLREG_SECRET --plain)" \
             -e "registry_url=$(doppler secrets get REGISTRY_URL --plain)" \
             playbooks/site.yml
+
+  smoke-test:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Test push and pull
+        run: |
+          IMAGE="ttl.sh/smoke-${{ github.sha }}:5m"
+          echo "🧪 Testing with image: $IMAGE"
+          
+          # Use busybox - tiny image (~1MB)
+          docker pull busybox:latest
+          docker tag busybox:latest "$IMAGE"
+          
+          echo "📤 Pushing image..."
+          docker push "$IMAGE"
+          
+          # Remove local copy to force pull from registry
+          docker rmi "$IMAGE"
+          
+          echo "📥 Pulling image back..."
+          docker pull "$IMAGE"
+          
+          echo "✅ Push/pull test passed!"

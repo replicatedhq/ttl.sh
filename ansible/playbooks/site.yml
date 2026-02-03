@@ -70,28 +70,8 @@
         creates: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
       when: not cert_stat.stat.exists
 
-    - name: Create web root
-      ansible.builtin.file:
-        path: "{{ site_dir }}"
-        state: directory
-        owner: www-data
-        group: www-data
-        mode: "0755"
-        recurse: true
-
-    - name: Deploy static assets from repo
-      ansible.builtin.copy:
-        src: "{{ static_src_path }}"
-        dest: "{{ site_dir }}/"
-        owner: www-data
-        group: www-data
-        mode: "0644"
-        directory_mode: "0755"
-
-    - name: Remove legacy test index.html if present
-      ansible.builtin.file:
-        path: "{{ site_dir }}/index.html"
-        state: absent
+    # Static site tasks removed - now using Next.js container
+    # Web content is served by the ttlsh-web container on port 3000
 
     - name: Drop Nginx site config (TLS enabled)
       ansible.builtin.template:
@@ -186,12 +166,7 @@
         CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
       when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0 and (gcloud_sa_email not in (gcloud_auth_list.stdout_lines | default([])))
 
-    - name: Configure Docker auth for Artifact Registry
-      ansible.builtin.command: >-
-        gcloud auth configure-docker {{ gcloud_registry_host }} --quiet
-      environment:
-        CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
-      when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0
+    # GHCR packages are public - no login needed for pulls
 
     # --- Docker Engine + Compose install ---
     - name: Install Docker prereqs

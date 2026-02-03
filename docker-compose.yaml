@@ -1,6 +1,21 @@
 services:
+  web:
+    image: ghcr.io/replicatedhq/ttlsh-web:latest
+    build:
+      context: web
+      dockerfile: Dockerfile
+      platforms:
+        - "linux/amd64"
+    container_name: ttlsh-web
+    restart: always
+    pull_policy: always
+    ports:
+      - "3000:3000"
+    networks:
+      - ttlsh-network
+
   registry:
-    image: us-east4-docker.pkg.dev/rgstry/ttl-sh-registry/registry:latest
+    image: ghcr.io/replicatedhq/ttlsh-registry:latest
     build:
       context: registry
       dockerfile: Dockerfile
@@ -19,7 +34,7 @@ services:
       - ttlsh-network
 
   hooks:
-    image: us-east4-docker.pkg.dev/rgstry/ttl-sh-hooks/hooks:latest
+    image: ghcr.io/replicatedhq/ttlsh-hooks:latest
     build:
       context: hooks
       dockerfile: Dockerfile.hooks
@@ -39,7 +54,7 @@ services:
       - ttlsh-network
 
   reaper:
-    image: us-east4-docker.pkg.dev/rgstry/ttl-sh-reap/reaper:latest
+    image: ghcr.io/replicatedhq/ttlsh-reaper:latest
     build:
       context: hooks
       dockerfile: Dockerfile.reap
