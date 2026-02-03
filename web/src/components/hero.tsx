@@ -67,7 +67,7 @@ export function Hero() {
               </div>
             ))}
             <div className="pt-2 text-muted-foreground text-xs">
-              {"# "}Your image is now available for 1 hour at ttl.sh/xxxx-yyyy-nnnn:1h
+              {"# "}Your image is now available for 1 hour at ttl.sh/${"{"}IMAGE_NAME{"}"}:1h
             </div>
           </div>
         </div>
