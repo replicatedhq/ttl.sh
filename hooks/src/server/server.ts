@@ -36,6 +36,7 @@ export class Server extends ServerLoader {
       type: [
         "application/json",
         "application/vnd.docker.distribution.events.v1+json",
+        "application/vnd.docker.distribution.events.v2+json",
       ],
     }));
 
