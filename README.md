@@ -1,44 +1,39 @@
-[![Develop on Okteto](https://okteto.com/develop-okteto.svg)](https://replicated.okteto.dev/deploy?repository=https://github.com/replicatedhq/ttl.sh&branch=main)
-
 # ttl.sh
 
 ## An ephemeral container registry for CI workflows.
 
 ## What is ttl.sh?
 
-ttl.sh is an anonymous, expiring Docker container registry using the official Docker Registry image. This is a set of tools and configurations that can be used to deploy the registry without authentication, but with self-expiring images.
+ttl.sh is an anonymous, expiring container registry built on [zot](https://zotregistry.dev).
+This repo holds the host configuration (Ansible), the Next.js marketing site (`web/`), and
+the Docker Compose stack that runs on the server. It does not provision infrastructure —
+it configures a host that already exists.
 
-# Development
+## Layout
 
-Development for the services in this project is done through [Okteto](https://replicated.okteto.dev).
+| Path                  | What it is                                             |
+| --------------------- | ------------------------------------------------------ |
+| `ansible/`            | Nginx + TLS, Docker, and the Compose deployment        |
+| `web/`                | Next.js site served at https://ttl.sh                  |
+| `static/`             | Legacy static site assets                              |
+| `docker-compose.yaml` | The two services that run on the host: `web` and `zot` |
 
-## Setup
+## How it runs
 
-1. Install the Okteto CLI (`brew install okteto`)
-2. Setup Okteto CLI (`okteto context use https://replicated.okteto.dev`)
-3. Setup Okteto context in kubectl (`okteto context update-kubeconfig`)
-4. Deploy your current branch. (from the ttl.sh root directory: `okteto pipeline deploy`)
+Nginx terminates TLS and proxies:
 
-## Debugging
+- `/` to the `web` container on port 3000
+- `/v2` to the `zot` container on port 5000 (`/v2/_catalog` is blocked)
 
-Okteto is utilized for debugging. New build targets have been added to allow building and running each service in debug mode.
+Zot runs an off-the-shelf image (`ghcr.io/project-zot/zot-linux-amd64`) with no local
+customization. Its only configuration is `zot-config.json`, rendered onto the host by
+Ansible from `ansible/templates/zot-config.json.j2`, which points zot at an S3-compatible
+bucket for blob storage.
 
-1. Replace the default container in your Okteto environment with a development container.
-   1. From the root directory: `okteto up` or `okteto up <service name>`
-2. Run the build targets for the desired service:
-   1. ttl-hooks: `make deps build hooks`
-   2. ttl-reaper: `make deps build reap`
-3. Stop development and go back to the default container.
-   1. From the root directory: `okteto down` or `okteto down <service name>`
+Tag expiry is handled separately and is not yet wired up in this repo.
 
-## Example workflows
+## Deploying
 
-### Switching branches or rebasing
-
-1. `git checkout my-new-branch` 
-2. `okteto pipeline deploy` 
-3. (make code changes)
-4. `okteto up`
-5. (test changes, find they don't work, make more changes)...
-6. `okteto down`
-7. (commit code, and be happy)
+See [DEPLOYING.md](DEPLOYING.md). Pushes to the deploy branch also run
+`.github/workflows/deploy.yml`, which builds and pushes the `web` image and then runs the
+Ansible playbook.

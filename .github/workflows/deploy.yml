@@ -38,10 +38,8 @@ jobs:
 
       - name: Build and push images
         run: |
-          # Create empty .env file (docker-compose references it, but it's only needed at runtime)
-          touch .env
-          docker compose build
-          docker compose push
+          docker compose build web
+          docker compose push web
 
   deploy:
     name: Deploy to Production
@@ -58,7 +56,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ansible
-          ansible-galaxy collection install community.general community.docker
+          ansible-galaxy collection install -r ansible/requirements.yml
 
       - name: Setup SSH key
         run: |
@@ -77,16 +75,11 @@ jobs:
             -e "cloudflare_zone_id=$(doppler secrets get CF_ZONE_ID --plain)" \
             -e "cloudflare_email=$(doppler secrets get LE_EMAIL --plain)" \
             -e "le_email=$(doppler secrets get LE_EMAIL --plain)" \
-            -e "gcloud_sa_email=$(doppler secrets get GOOGLE_APPLICATION_CREDENTIALS_EMAIL --plain)" \
-            -e "gcloud_sa_key_json=$(doppler secrets get GCS_KEY_ENCODED --plain)" \
-            -e "gcs_key_encoded=$(doppler secrets get GCS_KEY_ENCODED --plain)" \
-            -e "hook_token=$(doppler secrets get HOOK_TOKEN --plain)" \
-            -e "hook_uri=$(doppler secrets get HOOK_URI --plain)" \
-            -e "redis_password=$(doppler secrets get REDIS_PASSWORD --plain)" \
-            -e "rediscloud_url=$(doppler secrets get REDISCLOUD_URL --plain)" \
-            -e "replreg_host=$(doppler secrets get REPLREG_HOST --plain)" \
-            -e "replreg_secret=$(doppler secrets get REPLREG_SECRET --plain)" \
-            -e "registry_url=$(doppler secrets get REGISTRY_URL --plain)" \
+            -e "s3_bucket=$(doppler secrets get S3_BUCKET --plain)" \
+            -e "s3_region=$(doppler secrets get S3_REGION --plain)" \
+            -e "s3_endpoint=$(doppler secrets get S3_ENDPOINT --plain)" \
+            -e "s3_access_key=$(doppler secrets get S3_ACCESS_KEY --plain)" \
+            -e "s3_secret_key=$(doppler secrets get S3_SECRET_KEY --plain)" \
             playbooks/site.yml
 
   smoke-test:
