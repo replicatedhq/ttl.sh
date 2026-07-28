@@ -2,25 +2,22 @@
   "distSpecVersion": "1.1.0",
   "storage": {
     "rootDirectory": "/var/lib/zot",
-    "dedupe": false,
-    "storageDriver": {
-      "name": "s3",
-      "rootdirectory": "{{ s3_root_directory }}",
-      "bucket": "{{ s3_bucket }}",
-      "region": "{{ s3_region }}",
-      "regionendpoint": "{{ s3_endpoint }}",
-      "accesskey": "{{ s3_access_key }}",
-      "secretkey": "{{ s3_secret_key }}",
-      "secure": true,
-      "forcepathstyle": true
-    }
+    "dedupe": true,
+    "commit": true,
+    "gc": true,
+    "gcDelay": "1h",
+    "gcInterval": "24h"
   },
   "http": {
     "address": "0.0.0.0",
-    "port": "5000"
+    "port": "5000",
+    "compat": ["docker2s2"]
   },
   "log": {
     "level": "info"
+  },
+  "scheduler": {
+    "numWorkers": 3
   },
   "extensions": {
     "events": {
