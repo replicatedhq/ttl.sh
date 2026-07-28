@@ -23,6 +23,10 @@ services:
       - "127.0.0.1:5000:5000"
     volumes:
       - ./zot-config.json:/etc/zot/config.json:ro
+      # Registry blobs live on the host, not in the container layer. Docker
+      # creates this directory on first start; zot runs as root so no chown
+      # dance is needed. Path matches storage.rootDirectory in zot-config.json.
+      - ./zot-data:/var/lib/zot
     networks:
       - ttlsh-network
 
