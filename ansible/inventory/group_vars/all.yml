@@ -1,6 +1,6 @@
 ---
 # Domain to provision
-domain_name: ttl.sh
+domain_name: "staging.ttl.sh"
 
 # Compute zone name from domain (ttl.sh)
 zone_name: "ttl.sh"

@@ -1,4 +1,4 @@
 [ttlsh]
 # Address is not hardcoded here - it comes from the LATITUDESH_VM_IP Doppler
 # secret, passed in as ansible_host by ansible.sh / the deploy workflow.
-ttlsh-vm ansible_user=root
+ttlsh-vm ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/latitude
