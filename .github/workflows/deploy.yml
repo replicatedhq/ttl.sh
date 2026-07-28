@@ -58,12 +58,24 @@ jobs:
           sudo apt-get install -y ansible
           ansible-galaxy collection install -r ansible/requirements.yml
 
+      - name: Resolve VM IP from Doppler
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: |
+          VM_IP=$(doppler secrets get LATITUDESH_VM_IP --plain)
+          if [ -z "$VM_IP" ]; then
+            echo "error: LATITUDESH_VM_IP is empty" >&2
+            exit 1
+          fi
+          echo "VM_IP=$VM_IP" >> "$GITHUB_ENV"
+
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 178.156.198.215 >> ~/.ssh/known_hosts
+          # Inventory expects the key at ~/.ssh/latitude
+          echo "${{ secrets.LATITUDESH_SSH_PRIVATE_KEY }}" > ~/.ssh/latitude
+          chmod 600 ~/.ssh/latitude
+          ssh-keyscan -H "$VM_IP" >> ~/.ssh/known_hosts
 
       - name: Run Ansible deployment
         working-directory: ./ansible
@@ -71,6 +83,8 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         run: |
           ansible-playbook \
+            -e "ansible_host=$VM_IP" \
+            -e "target_ip=$VM_IP" \
             -e "cloudflare_api_token=$(doppler secrets get CF_API_TOKEN --plain)" \
             -e "cloudflare_zone_id=$(doppler secrets get CF_ZONE_ID --plain)" \
             -e "cloudflare_email=$(doppler secrets get LE_EMAIL --plain)" \
