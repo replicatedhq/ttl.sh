@@ -216,9 +216,9 @@
       args:
         chdir: "{{ app_root }}"
 
-    # The zot config is bind-mounted, so compose won't notice a content change
-    - name: Restart zot if its config changed
+    # The zot config is bind-mounted, so compose won't notice a content change.
+    # Always restart so zot is guaranteed to be running the config we just wrote.
+    - name: Restart zot
       ansible.builtin.command: docker compose -f {{ app_root }}/docker-compose.yaml restart zot
       args:
         chdir: "{{ app_root }}"
-      when: zot_config.changed
