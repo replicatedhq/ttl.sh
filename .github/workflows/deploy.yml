@@ -38,8 +38,8 @@ jobs:
 
       - name: Build and push images
         run: |
-          docker compose build web
-          docker compose push web
+          docker compose build web zot-ephemeral-ttl
+          docker compose push web zot-ephemeral-ttl
 
   deploy:
     name: Deploy to Production

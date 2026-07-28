@@ -26,6 +26,44 @@ services:
     networks:
       - ttlsh-network
 
+  # Tag-driven TTL sidecar. Zot posts image.updated CloudEvents to it (see the
+  # events extension in zot-config.json) and it DELETEs manifests once expired.
+  zot-ephemeral-ttl:
+    image: ghcr.io/replicatedhq/ttlsh-ephemeral-ttl:latest
+    build:
+      context: sidecar
+      dockerfile: Dockerfile
+      platforms:
+        - "linux/amd64"
+    container_name: ttlsh-ephemeral-ttl
+    restart: always
+    pull_policy: always
+    networks:
+      - ttlsh-network
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # Backing store for the sidecar's expiry index.
+  redis:
+    image: redis:8-alpine
+    container_name: ttlsh-redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - ttlsh-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 2s
+
 networks:
   ttlsh-network:
     driver: bridge
+
+volumes:
+  redis-data:

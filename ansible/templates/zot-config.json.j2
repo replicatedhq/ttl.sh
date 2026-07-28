@@ -20,5 +20,17 @@
   },
   "log": {
     "level": "info"
+  },
+  "extensions": {
+    "events": {
+      "enable": true,
+      "sinks": [
+        {
+          "type": "http",
+          "address": "http://zot-ephemeral-ttl:8080/events",
+          "timeout": "5s"
+        }
+      ]
+    }
   }
 }

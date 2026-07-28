@@ -6,9 +6,10 @@ already-running Ubuntu host that you can reach as `root` over SSH, listed in
 `ansible/inventory/group_vars/all.yml` (that value is what the Cloudflare A record is
 pointed at).
 
-## Build the ttl.sh web image
+## Build the ttl.sh images
 
-Only the `web` service is built here — zot is used off the shelf.
+The `web` and `zot-ephemeral-ttl` services are built here — zot and redis are used
+off the shelf.
 
 1. Docker and Docker Compose are installed
 2. Authenticated to `ghcr.io` (`docker login ghcr.io`)
