@@ -2,11 +2,39 @@
   "distSpecVersion": "1.1.0",
   "storage": {
     "rootDirectory": "/var/lib/zot",
-    "dedupe": true,
-    "commit": true,
+    "dedupe": false,
     "gc": true,
     "gcDelay": "1h",
-    "gcInterval": "24h"
+    "gcInterval": "24h",
+    "storageDriver": {
+      "name": "s3",
+      "rootdirectory": "{{ s3_root_directory }}",
+      "bucket": "{{ s3_bucket }}",
+      "region": "{{ s3_region }}",
+      "regionendpoint": "{{ s3_endpoint }}",
+      "accesskey": "{{ s3_access_key }}",
+      "secretkey": "{{ s3_secret_key }}",
+      "secure": true,
+      "forcepathstyle": true,
+      "skipverify": true
+    },
+    "retention": {
+      "dryRun": false,
+      "delay": "1h",
+      "policies": [
+        {
+          "repositories": ["**"],
+          "deleteReferrers": true,
+          "deleteUntagged": true,
+          "keepTags": [
+            {
+              "patterns": [".*"],
+              "pushedWithin": "24h"
+            }
+          ]
+        }
+      ]
+    }
   },
   "http": {
     "address": "0.0.0.0",
