@@ -4,8 +4,6 @@
     "rootDirectory": "/var/lib/zot",
     "dedupe": false,
     "gc": true,
-    "gcDelay": "1h",
-    "gcInterval": "24h",
     "storageDriver": {
       "name": "s3",
       "rootdirectory": "{{ s3_root_directory }}",
@@ -42,7 +40,7 @@
     "compat": ["docker2s2"]
   },
   "log": {
-    "level": "info"
+    "level": "warn"
   },
   "scheduler": {
     "numWorkers": 3
