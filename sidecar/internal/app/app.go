@@ -56,8 +56,18 @@ func Run(ctx context.Context, cfg config.Config) error {
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
+	// The sweep loop gets its own cancellable context so it can be stopped on
+	// the way out even when shutdown was triggered by a server error rather
+	// than by ctx.
+	reaperCtx, stopReaper := context.WithCancel(ctx)
+	defer stopReaper()
+
 	rp := reaper.New(cfg.SweepInterval, st, registry.New(cfg.ZotURL))
-	go rp.Run(ctx)
+	reaperDone := make(chan struct{})
+	go func() {
+		defer close(reaperDone)
+		rp.Run(reaperCtx)
+	}()
 
 	serveErr := make(chan error, 1)
 	go func() {
@@ -76,5 +86,13 @@ func Run(ctx context.Context, cfg config.Config) error {
 	log.Printf("shutting down")
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	return httpSrv.Shutdown(shutdownCtx)
+	shutdownErr := httpSrv.Shutdown(shutdownCtx)
+
+	// Wait for an in-flight sweep to unwind before returning, so it cannot
+	// still be talking to Redis when the deferred Close runs. Cancelling
+	// reaperCtx aborts the delete request in flight, so this does not block for
+	// long.
+	stopReaper()
+	<-reaperDone
+	return shutdownErr
 }
