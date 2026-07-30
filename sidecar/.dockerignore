@@ -1,0 +1,22 @@
+# Keep build context lean. Anything not needed by `go build` lives here.
+.git
+.gitignore
+.github
+.vscode
+.idea
+*.md
+LICENSE
+
+# Local build artifacts.
+bin/
+dist/
+out/
+*.test
+*.out
+coverage.txt
+coverage.html
+
+# Editor / OS junk.
+.DS_Store
+*.swp
+*~

@@ -4,13 +4,9 @@
   hosts: ttlsh
   become: true
   vars:
-    site_dir: "/var/www/{{ domain_name }}/html"
     cloudflare_credentials_path: /etc/letsencrypt/cloudflare.ini
     # derive DNS record prefix, e.g. 'dev' for dev.ttl.sh
     dns_record: "{{ '@' if domain_name == zone_name else domain_name[:-(zone_name|length + 1)] }}"
-    # repo-relative source for static assets
-    static_src_path: "{{ playbook_dir }}/../../{{ static_site_repo_path }}/"
-  pre_tasks: []
   tasks:
     - name: Ensure Cloudflare API token present
       ansible.builtin.assert:
@@ -126,46 +122,6 @@
         hour: "*/12"
         job: "/usr/bin/certbot renew -q"
 
-    # --- Google Cloud CLI install and configuration ---
-    - name: Install Google Cloud CLI (role)
-      ansible.builtin.include_role:
-        name: google.cloud.gcloud
-
-    - name: Ensure gcloud key directory exists
-      ansible.builtin.file:
-        path: /root/.gcloud
-        state: directory
-        owner: root
-        group: root
-        mode: "0700"
-      when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0
-
-    - name: Write GCP service account key (decoded from base64)
-      ansible.builtin.copy:
-        dest: /root/.gcloud/sa.json
-        content: "{{ gcloud_sa_key_json | b64decode }}"
-        owner: root
-        group: root
-        mode: "0600"
-      when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0
-
-    - name: Check existing gcloud authenticated accounts
-      ansible.builtin.command: gcloud auth list --format=value(account)
-      register: gcloud_auth_list
-      changed_when: false
-      failed_when: false
-      environment:
-        CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
-      when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0
-
-    - name: Activate service account for gcloud
-      ansible.builtin.command: >-
-        gcloud auth activate-service-account {{ gcloud_sa_email }}
-        --key-file=/root/.gcloud/sa.json --quiet
-      environment:
-        CLOUDSDK_CORE_DISABLE_PROMPTS: "1"
-      when: (gcloud_sa_email | length) > 0 and (gcloud_sa_key_json | length) > 0 and (gcloud_sa_email not in (gcloud_auth_list.stdout_lines | default([])))
-
     # GHCR packages are public - no login needed for pulls
 
     # --- Docker Engine + Compose install ---
@@ -243,11 +199,12 @@
         dest: "{{ app_root }}/docker-compose.yaml"
         mode: "0644"
 
-    - name: Render .env file
+    - name: Render zot config
       ansible.builtin.template:
-        src: ../templates/env.j2
-        dest: "{{ app_root }}/.env"
+        src: ../templates/zot-config.json.j2
+        dest: "{{ app_root }}/zot-config.json"
         mode: "0600"
+      register: zot_config
 
     - name: Pull images
       ansible.builtin.command: docker compose -f {{ app_root }}/docker-compose.yaml pull
@@ -256,5 +213,12 @@
 
     - name: Start services
       ansible.builtin.command: docker compose -f {{ app_root }}/docker-compose.yaml up -d
+      args:
+        chdir: "{{ app_root }}"
+
+    # The zot config is bind-mounted, so compose won't notice a content change.
+    # Always restart so zot is guaranteed to be running the config we just wrote.
+    - name: Restart zot
+      ansible.builtin.command: docker compose -f {{ app_root }}/docker-compose.yaml restart zot
       args:
         chdir: "{{ app_root }}"

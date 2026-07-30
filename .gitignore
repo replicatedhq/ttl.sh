@@ -1,3 +1,2 @@
 deploy
-terraform/staging/knowledge/*
-.terraform
+zot-data/

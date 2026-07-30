@@ -43,22 +43,23 @@ main() {
   # Always run from the ansible dir so relative paths match
   cd "$HERE"
 
+  # The inventory has no address in it; both the SSH target and the Cloudflare
+  # A record value come from this one secret.
+  local vm_ip
+  vm_ip=$(get_secret LATITUDESH_VM_IP)
+
   ansible-playbook \
+    -e "ansible_host=${vm_ip}" \
+    -e "target_ip=${vm_ip}" \
     -e "cloudflare_api_token=$(get_secret CF_API_TOKEN)" \
     -e "cloudflare_zone_id=$(get_secret CF_ZONE_ID)" \
     -e "cloudflare_email=$(get_secret LE_EMAIL)" \
     -e "le_email=$(get_secret LE_EMAIL)" \
-    -e "gcloud_sa_email=$(get_secret GOOGLE_APPLICATION_CREDENTIALS_EMAIL)" \
-    -e "gcloud_sa_key_json=$(get_secret GCS_KEY_ENCODED)" \
-    -e "gcloud_registry_host=$(get_secret GOOGLE_CLOUD_ARTIFACT_REGISTRY_URI)" \
-    -e "gcs_key_encoded=$(get_secret GCS_KEY_ENCODED)" \
-    -e "hook_token=$(get_secret HOOK_TOKEN)" \
-    -e "hook_uri=$(get_secret HOOK_URI)" \
-    -e "redis_password=$(get_secret REDIS_PASSWORD)" \
-    -e "rediscloud_url=$(get_secret REDISCLOUD_URL)" \
-    -e "replreg_host=$(get_secret REPLREG_HOST)" \
-    -e "replreg_secret=$(get_secret REPLREG_SECRET)" \
-    -e "registry_url=$(get_secret REGISTRY_URL)" \
+    -e "s3_bucket=$(get_secret S3_BUCKET)" \
+    -e "s3_region=$(get_secret S3_REGION)" \
+    -e "s3_endpoint=$(get_secret S3_ENDPOINT)" \
+    -e "s3_access_key=$(get_secret S3_ACCESS_KEY)" \
+    -e "s3_secret_key=$(get_secret S3_SECRET_KEY)" \
     playbooks/site.yml
 }
 

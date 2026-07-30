@@ -10,80 +10,64 @@ services:
     restart: always
     pull_policy: always
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     networks:
       - ttlsh-network
 
-  registry:
-    image: ghcr.io/replicatedhq/ttlsh-registry:latest
+  zot:
+    image: ghcr.io/project-zot/zot-linux-amd64:v2.1.18
+    container_name: ttlsh-zot
+    restart: always
+    pull_policy: always
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - ./zot-config.json:/etc/zot/config.json:ro
+      # Registry blobs live on the host, not in the container layer. Docker
+      # creates this directory on first start; zot runs as root so no chown
+      # dance is needed. Path matches storage.rootDirectory in zot-config.json.
+      - ./zot-data:/var/lib/zot
+    networks:
+      - ttlsh-network
+
+  # Tag-driven TTL sidecar. Zot posts image.updated CloudEvents to it (see the
+  # events extension in zot-config.json) and it DELETEs manifests once expired.
+  zot-ephemeral-ttl:
+    image: ghcr.io/replicatedhq/ttlsh-ephemeral-ttl:latest
     build:
-      context: registry
+      context: sidecar
       dockerfile: Dockerfile
       platforms:
         - "linux/amd64"
-    container_name: ttlsh-registry
+    container_name: ttlsh-ephemeral-ttl
     restart: always
     pull_policy: always
-    env_file: ".env"
-    environment:
-      - PORT=5000
-    ports:
-      - "5000:5000"
-      - "5001:5001"
     networks:
       - ttlsh-network
+    depends_on:
+      redis:
+        condition: service_healthy
 
-  hooks:
-    image: ghcr.io/replicatedhq/ttlsh-hooks:latest
-    build:
-      context: hooks
-      dockerfile: Dockerfile.hooks
-      platforms:
-        - "linux/amd64"
-    container_name: ttlsh-hooks
-    restart: always
-    pull_policy: always
-    env_file: ".env"
-    environment:
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - NODE_ENV=${NODE_ENV:-production}
-      - PORT=8000
-    ports:
-      - "8000:8000"
-    networks:
-      - ttlsh-network
-
-  reaper:
-    image: ghcr.io/replicatedhq/ttlsh-reaper:latest
-    build:
-      context: hooks
-      dockerfile: Dockerfile.reap
-      platforms:
-        - "linux/amd64"
-    container_name: ttlsh-reaper
-    restart: always
-    pull_policy: always
-    env_file: ".env"
-    environment:
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - NODE_ENV=${NODE_ENV:-production}
-    networks:
-      - ttlsh-network
-
+  # Backing store for the sidecar's expiry index.
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     container_name: ttlsh-redis
     restart: always
-    pull_policy: always
-    env_file: ".env"
-    ports:
-      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
     networks:
       - ttlsh-network
-    volumes:
-      - ./redis/data:/data
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 2s
 
 networks:
   ttlsh-network:
     driver: bridge
+
+volumes:
+  redis-data:
