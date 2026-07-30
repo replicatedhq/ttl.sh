@@ -1,6 +1,7 @@
 ---
 # Domain to provision
-domain_name: "staging.ttl.sh"
+# domain_name: "staging.ttl.sh", # set GHA on.push.branches to `prerelease`
+domain_name: "ttl.sh" 
 
 # Compute zone name from domain (ttl.sh)
 zone_name: "ttl.sh"
