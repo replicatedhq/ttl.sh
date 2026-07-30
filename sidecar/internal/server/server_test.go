@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/events"
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/store"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/events"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/store"
 )
 
 // Server.Store is documented as safe for concurrent use, so the fake locks its

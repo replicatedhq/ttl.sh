@@ -13,11 +13,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/config"
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/reaper"
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/registry"
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/server"
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/store"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/config"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/reaper"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/registry"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/server"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/store"
 )
 
 // storeBackend is the union of persistence capabilities app injects into the

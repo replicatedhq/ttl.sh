@@ -1,4 +1,4 @@
-module github.com/nullbytelabs/zot-ephemeral-ttl
+module github.com/replicatedhq/ttl.sh/sidecar
 
 go 1.26
 

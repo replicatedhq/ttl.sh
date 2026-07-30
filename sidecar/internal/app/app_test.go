@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/config"
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/redistest"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/config"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/redistest"
 )
 
 // The startup-path test needs a real Redis; redistest starts one per package.

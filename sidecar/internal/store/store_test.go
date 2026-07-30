@@ -9,7 +9,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/redistest"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/redistest"
 )
 
 // These tests run against a real Redis, started for the package by redistest.
