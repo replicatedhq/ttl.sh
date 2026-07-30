@@ -101,22 +101,23 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy
     steps:
-      - name: Test push and pull
+      - name: Test push, pull, and expiry
         run: |
-          IMAGE="ttl.sh/smoke-${{ github.sha }}:5m"
-          echo "🧪 Testing with image: $IMAGE"
-          
-          # Use busybox - tiny image (~1MB)
+          IMAGE="ttl.sh/smoke-${{ github.sha }}:1m"
+
           docker pull busybox:latest
           docker tag busybox:latest "$IMAGE"
-          
-          echo "📤 Pushing image..."
           docker push "$IMAGE"
-          
-          # Remove local copy to force pull from registry
-          docker rmi "$IMAGE"
-          
-          echo "📥 Pulling image back..."
+
+          docker rmi "$IMAGE" busybox:latest
           docker pull "$IMAGE"
-          
-          echo "✅ Push/pull test passed!"
+          echo "✅ Push/pull passed"
+
+          docker rmi "$IMAGE"
+          sleep 90
+
+          if docker pull "$IMAGE"; then
+            echo "❌ image still pullable after TTL"
+            exit 1
+          fi
+          echo "✅ Image expired as expected"

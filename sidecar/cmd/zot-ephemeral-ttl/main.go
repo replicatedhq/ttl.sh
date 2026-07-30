@@ -9,8 +9,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/app"
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/config"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/app"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/config"
 )
 
 // Build metadata, set via -ldflags "-X main.version=..." in the Dockerfile.

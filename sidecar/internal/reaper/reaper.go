@@ -9,7 +9,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/store"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/store"
 )
 
 // Store is the subset of the persistence layer the reaper needs.

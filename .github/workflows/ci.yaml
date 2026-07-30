@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    # sidecar/ is the only Go module in this repo; skip CI for changes that
+    # cannot affect it (web/, ansible/, docs).
+    paths:
+      - "sidecar/**"
+      - ".github/workflows/ci.yaml"
+
+# Cancel in-progress runs for the same ref (PR or branch) when new commits land.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: sidecar
+
+jobs:
+  lint:
+    name: Lint & format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: sidecar/go.mod
+          check-latest: true
+          cache-dependency-path: sidecar/go.sum
+
+      - name: Verify gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::The following files are not gofmt-formatted:"
+            echo "$unformatted"
+            echo "Run 'gofmt -w .' to fix."
+            exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: Verify go.mod is tidy
+        run: |
+          go mod tidy
+          if ! git diff --exit-code -- go.mod go.sum; then
+            echo "::error::go.mod/go.sum are not tidy. Run 'go mod tidy' and commit the result."
+            exit 1
+          fi
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: v2.12.2
+          # `defaults.run` does not apply to actions, so point it at the module.
+          working-directory: sidecar
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    # No service container: internal/redistest starts its own Redis on the
+    # runner's Docker daemon. GitHub sets CI=true, which makes it fail rather
+    # than skip, so the persistence layer cannot drop out of this job.
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: sidecar/go.mod
+          check-latest: true
+          cache-dependency-path: sidecar/go.sum
+
+      - name: Run tests (race + coverage)
+        run: go test -race -coverprofile=cover.out -covermode=atomic ./...
+
+      - name: Coverage summary
+        run: go tool cover -func=cover.out | tail -1
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: sidecar/go.mod
+          check-latest: true
+          cache-dependency-path: sidecar/go.sum
+
+      - name: go build
+        env:
+          CGO_ENABLED: "0"
+        run: go build -ldflags="-s -w" ./...

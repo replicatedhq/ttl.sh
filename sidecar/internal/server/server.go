@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/events"
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/ttl"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/events"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/ttl"
 )
 
 // Store is the subset of the persistence layer the server needs.

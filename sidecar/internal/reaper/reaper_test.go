@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nullbytelabs/zot-ephemeral-ttl/internal/store"
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/store"
 )
 
 // In-memory fakes for the reaper's two dependencies. No real DB, no real HTTP.

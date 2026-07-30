@@ -21,7 +21,11 @@ func New(baseURL string) *Client {
 	return &Client{
 		baseURL: baseURL,
 		http: &http.Client{
-			Timeout: 30 * time.Second,
+			// A manifest delete is a metadata operation against a zot running
+			// alongside this process, so it should be fast. Failing quickly
+			// keeps one wedged tag from stalling the rest of the sweep; the row
+			// stays in the store and is retried on the next tick.
+			Timeout: 5 * time.Second,
 		},
 	}
 }
@@ -41,11 +45,12 @@ func (c *Client) DeleteManifest(ctx context.Context, repo, tag string) error {
 		return err
 	}
 	defer func() { _ = resp.Body.Close() }()
-	_, _ = io.Copy(io.Discard, resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusAccepted, http.StatusNoContent, http.StatusNotFound:
 		return nil
 	default:
-		return fmt.Errorf("DELETE %s -> %d", endpoint, resp.StatusCode)
+		// zot describes the failure in the body; %q keeps it on one log line.
+		return fmt.Errorf("DELETE %s -> %d: %q", endpoint, resp.StatusCode, body)
 	}
 }

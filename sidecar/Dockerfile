@@ -65,7 +65,7 @@ ARG BUILD_DATE
 
 LABEL org.opencontainers.image.title="zot-ephemeral-ttl" \
       org.opencontainers.image.description="Tag-driven TTL sidecar for zot. Subscribes to image.updated CloudEvents and DELETEs expired manifests." \
-      org.opencontainers.image.source="https://github.com/nullbytelabs/zot-ephemeral-ttl" \
+      org.opencontainers.image.source="https://github.com/replicatedhq/ttl.sh" \
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.revision="${COMMIT}" \
