@@ -24,7 +24,7 @@ jobs:
     name: govulncheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # The action still installs govulncheck itself at @latest.
       - name: Run govulncheck
