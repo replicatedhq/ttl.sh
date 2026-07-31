@@ -21,11 +21,7 @@ func New(baseURL string) *Client {
 	return &Client{
 		baseURL: baseURL,
 		http: &http.Client{
-			// A manifest delete is a metadata operation against a zot running
-			// alongside this process, so it should be fast. Failing quickly
-			// keeps one wedged tag from stalling the rest of the sweep; the row
-			// stays in the store and is retried on the next tick.
-			Timeout: 5 * time.Second,
+			Timeout: 30 * time.Second,
 		},
 	}
 }
