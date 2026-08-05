@@ -1,5 +1,5 @@
 {
-  "distSpecVersion": "1.1.0",
+  "distSpecVersion": "1.1.1",
   "storage": {
     "rootDirectory": "/var/lib/zot",
     "dedupe": false,
@@ -14,7 +14,11 @@
       "secretkey": "{{ s3_secret_key }}",
       "secure": true,
       "forcepathstyle": true,
-      "skipverify": true
+      "skipverify": true,
+      "chunksize": "33554432",
+      "multipartcopychunksize": "33554432",
+      "multipartcopythresholdsize": "33554432",
+      "multipartcopymaxconcurrency": "100"
     },
     "retention": {
       "dryRun": false,
@@ -43,9 +47,6 @@
   },
   "log": {
     "level": "warn"
-  },
-  "scheduler": {
-    "numWorkers": 3
   },
   "extensions": {
     "events": {
