@@ -55,12 +55,8 @@ server {
 
 upstream ttlsh_zot {
     server 127.0.0.1:5000;
-    keepalive 64;
-    keepalive_timeout 60s;
 }
 
 upstream ttlsh_web {
     server 127.0.0.1:3000;
-    keepalive 32;
-    keepalive_timeout 60s;
 }
