@@ -4,11 +4,18 @@ package registry
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
 )
+
+// ErrManifestReferenced is zot's 405/DENIED: the reference names a manifest an
+// index still points at. Despite the "access denied" wording it is not an
+// authorization failure, and it will not clear on retry — only deleting the
+// index releases the child.
+var ErrManifestReferenced = errors.New("manifest is referenced by an index")
 
 type Client struct {
 	baseURL string
@@ -45,6 +52,8 @@ func (c *Client) DeleteManifest(ctx context.Context, repo, tag string) error {
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusAccepted, http.StatusNoContent, http.StatusNotFound:
 		return nil
+	case http.StatusMethodNotAllowed:
+		return fmt.Errorf("DELETE %s: %w", endpoint, ErrManifestReferenced)
 	default:
 		// zot describes the failure in the body; %q keeps it on one log line.
 		return fmt.Errorf("DELETE %s -> %d: %q", endpoint, resp.StatusCode, body)

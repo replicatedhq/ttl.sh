@@ -2,6 +2,7 @@ package registry
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -51,6 +52,22 @@ func TestDeleteManifestStatus(t *testing.T) {
 				t.Errorf("path = %q, want %q", gotPath, want)
 			}
 		})
+	}
+}
+
+// zot answers 405/DENIED when the reference is a manifest an index still
+// points at. That has to arrive as ErrManifestReferenced, not as a generic
+// error, or the reaper would retry it every tick forever.
+func TestDeleteManifestReferencedByIndex(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		_, _ = w.Write([]byte(`{"errors":[{"code":"DENIED","message":"requested access to the resource is denied"}]}`))
+	}))
+	defer srv.Close()
+
+	err := New(srv.URL).DeleteManifest(context.Background(), "foo/bar", "sha256:abc")
+	if !errors.Is(err, ErrManifestReferenced) {
+		t.Fatalf("err = %v, want ErrManifestReferenced", err)
 	}
 }
 
