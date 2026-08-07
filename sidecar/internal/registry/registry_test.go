@@ -71,6 +71,63 @@ func TestDeleteManifestReferencedByIndex(t *testing.T) {
 	}
 }
 
+// Once a repo's last tag is reaped the repo itself disappears, and zot answers a
+// delete against it with 400/NAME_UNKNOWN rather than 404. A cosign .sig tag
+// outliving its image lands here, so it has to read as success — otherwise the
+// row is never dropped and the reaper retries it every tick forever.
+func TestDeleteManifestRepoAlreadyGone(t *testing.T) {
+	cases := []struct {
+		name    string
+		status  int
+		body    string
+		wantErr bool
+	}{
+		{
+			name:   "NAME_UNKNOWN",
+			status: http.StatusBadRequest,
+			body:   `{"errors":[{"code":"NAME_UNKNOWN","message":"repository name not known to registry","detail":{"name":"c1e2d663-74a5-47d1-a395-d1b8cdacb137"}}]}`,
+		},
+		{
+			name:   "MANIFEST_UNKNOWN",
+			status: http.StatusBadRequest,
+			body:   `{"errors":[{"code":"MANIFEST_UNKNOWN","message":"manifest unknown"}]}`,
+		},
+		{
+			// A malformed request is also a 400, and that one is worth retrying
+			// and surfacing rather than silently untracking.
+			name:    "other 400 stays an error",
+			status:  http.StatusBadRequest,
+			body:    `{"errors":[{"code":"UNSUPPORTED","message":"the operation is unsupported"}]}`,
+			wantErr: true,
+		},
+		{
+			name:    "unparseable body stays an error",
+			status:  http.StatusBadRequest,
+			body:    `not json`,
+			wantErr: true,
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(tc.status)
+				_, _ = w.Write([]byte(tc.body))
+			}))
+			defer srv.Close()
+
+			err := New(srv.URL).DeleteManifest(context.Background(), "foo/bar", "sha256-abc.sig")
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+			if !tc.wantErr && err != nil {
+				t.Fatalf("expected nil, got error: %v", err)
+			}
+		})
+	}
+}
+
 // Port 1 refuses connections, so http.Client.Do fails and the error surfaces.
 func TestDeleteManifestTransportError(t *testing.T) {
 	c := New("http://127.0.0.1:1")
