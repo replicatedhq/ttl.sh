@@ -6,9 +6,11 @@ package reaper
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/registry"
 	"github.com/replicatedhq/ttl.sh/sidecar/internal/store"
 )
 
@@ -71,11 +73,19 @@ func (r *Reaper) sweepOnce(ctx context.Context) {
 	}
 	log.Printf("sweep: %d expired tag(s)", len(rows))
 	for _, row := range rows {
-		if err := r.registry.DeleteManifest(ctx, row.Repository, row.Tag); err != nil {
+		switch err := r.registry.DeleteManifest(ctx, row.Repository, row.Tag); {
+		case err == nil:
+			log.Printf("sweep: deleted %s:%s", row.Repository, row.Tag)
+		case errors.Is(err, registry.ErrManifestReferenced):
+			// Retrying can never succeed, so drop the row instead of failing
+			// this pair on every tick. The index that holds this manifest has a
+			// row of its own; once that expires, zot's untagged retention
+			// collects the child.
+			log.Printf("sweep: %s:%s held by an index, untracking: %v", row.Repository, row.Tag, err)
+		default:
 			log.Printf("sweep: delete %s:%s: %v", row.Repository, row.Tag, err)
 			continue
 		}
-		log.Printf("sweep: deleted %s:%s", row.Repository, row.Tag)
 		if err := r.store.Delete(row.Repository, row.Tag); err != nil {
 			log.Printf("sweep: row delete %s:%s: %v", row.Repository, row.Tag, err)
 		}

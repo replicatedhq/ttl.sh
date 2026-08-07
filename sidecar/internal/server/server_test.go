@@ -90,6 +90,37 @@ func TestHandleEventsImageUpdatedUpserts(t *testing.T) {
 	}
 }
 
+// A multi-arch push emits an image.updated per child manifest, referenced by
+// digest, before the one carrying the index's tag. Only the tag is trackable:
+// zot answers 405/DENIED to a delete of an index's child, so recording the
+// children would wedge the reaper on rows it can never clear.
+func TestHandleEventsIgnoresDigestReference(t *testing.T) {
+	srv, fs := newTestServer()
+	digest := "sha256:d3d669c9a5ef6483b05164101265237d0fff3a6495f659242262a1d8d68e2dda"
+	incoming := []events.ImageUpdatedData{
+		{Name: "foo/bar", Reference: digest, Digest: digest},             // child manifest
+		{Name: "foo/bar", Reference: "sha256:abc", Digest: "sha256:abc"}, // child manifest
+		{Name: "foo/bar", Reference: "1h", Digest: "sha256:index"},       // the index's tag
+	}
+	for _, data := range incoming {
+		body, _ := json.Marshal(data)
+		req := httptest.NewRequest(http.MethodPost, "/events", bytes.NewReader(body))
+		req.Header.Set("Ce-Type", events.ImageUpdatedType)
+		rec := httptest.NewRecorder()
+		srv.handleEvents(rec, req)
+		if rec.Code != http.StatusNoContent {
+			t.Fatalf("reference %q: got %d want 204", data.Reference, rec.Code)
+		}
+	}
+
+	if len(fs.rows) != 1 {
+		t.Fatalf("rows = %+v, want only the tagged index", fs.rows)
+	}
+	if fs.rows[0].Tag != "1h" {
+		t.Errorf("tracked tag = %q, want %q", fs.rows[0].Tag, "1h")
+	}
+}
+
 func TestHandleEventsOtherTypeAcked(t *testing.T) {
 	srv, fs := newTestServer()
 	body := []byte(`{"name":"foo","reference":"1h","digest":"sha256:x"}`)
