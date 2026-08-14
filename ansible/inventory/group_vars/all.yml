@@ -25,6 +25,9 @@ docker_users:
 # Application deployment
 app_root: /opt/ttlsh
 
+# UTC window during which Zot may start its daily garbage-collection sweep.
+zot_gc_time_window: "00:00-03:00"
+
 # S3-compatible object storage backing the zot registry
 s3_bucket: "_in_doppler"
 s3_region: "_in_doppler"
