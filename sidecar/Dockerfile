@@ -5,7 +5,7 @@
 
 # ---- build arguments -------------------------------------------------------
 ARG GO_VERSION=1.27.1
-ARG ALPINE_VERSION=3.22
+ARG ALPINE_VERSION=3.24
 
 # Cross-compilation: BuildKit injects TARGETOS/TARGETARCH for the
 # requested --platform; default to the build host's values when invoked
