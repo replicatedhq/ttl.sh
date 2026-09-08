@@ -3,7 +3,7 @@ module github.com/replicatedhq/ttl.sh/sidecar
 go 1.27.1
 
 require (
-	github.com/redis/go-redis/v9 v9.21.0
+	github.com/redis/go-redis/v9 v9.22.0
 	github.com/testcontainers/testcontainers-go v0.43.0
 	github.com/testcontainers/testcontainers-go/modules/redis v0.43.0
 )
