@@ -3,10 +3,12 @@ package reaper
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/replicatedhq/ttl.sh/sidecar/internal/registry"
 	"github.com/replicatedhq/ttl.sh/sidecar/internal/store"
 )
 
@@ -43,13 +45,17 @@ func (f *fakeStore) deletedCalls() [][2]string {
 type fakeDeleter struct {
 	mu     sync.Mutex
 	calls  [][2]string
-	failOn map[string]bool // key "repo:tag" -> return error
+	failOn map[string]bool  // key "repo:tag" -> return a generic error
+	errOn  map[string]error // key "repo:tag" -> return this specific error
 }
 
 func (d *fakeDeleter) DeleteManifest(_ context.Context, repo, tag string) error {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.calls = append(d.calls, [2]string{repo, tag})
+	if err, ok := d.errOn[repo+":"+tag]; ok {
+		return err
+	}
 	if d.failOn[repo+":"+tag] {
 		return errors.New("boom")
 	}
@@ -131,6 +137,24 @@ func TestSweepOnceDeleterErrorPreservesRow(t *testing.T) {
 	}
 	if got := fs.deletedCalls(); len(got) != 0 {
 		t.Fatalf("store.Delete calls = %v, want none (row preserved)", got)
+	}
+}
+
+// A child manifest of a multi-arch index can never be deleted on its own, so
+// the row has to be untracked rather than retried on every tick — the opposite
+// of how an ordinary delete failure is handled.
+func TestSweepOnceUntracksManifestReferencedByIndex(t *testing.T) {
+	digest := "sha256:d3d669c9a5ef6483b05164101265237d0fff3a6495f659242262a1d8d68e2dda"
+	fs := &fakeStore{expired: []store.Row{row("r", digest)}}
+	fd := &fakeDeleter{errOn: map[string]error{
+		"r:" + digest: fmt.Errorf("DELETE ...: %w", registry.ErrManifestReferenced),
+	}}
+	rp := New(time.Hour, fs, fd)
+
+	rp.sweepOnce(context.Background())
+
+	if got := fs.deletedCalls(); len(got) != 1 || got[0] != [2]string{"r", digest} {
+		t.Fatalf("store.Delete calls = %v, want one [r %s]", got, digest)
 	}
 }
 

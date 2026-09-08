@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/replicatedhq/ttl.sh/sidecar/internal/events"
@@ -68,6 +69,15 @@ func (s *Server) handleEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A multi-arch push emits one event per child manifest, referenced by
+	// digest, before the event for the index's tag. zot refuses to delete a
+	// manifest an index still references, so tracking those children would only
+	// produce rows the reaper can never clear; they go away with their index.
+	if isDigest(evt.Data.Reference) {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	now := s.clock()
 	expires := ttl.ComputeExpiry(evt.Data.Reference, now, s.defaultTTL, s.maxTTL)
 
@@ -94,6 +104,12 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("/events", s.handleEvents)
 	mux.HandleFunc("/healthz", s.handleHealthz)
 	return mux
+}
+
+// isDigest reports whether reference is a digest rather than a tag. An OCI tag
+// cannot contain a colon, so the separator alone is decisive.
+func isDigest(reference string) bool {
+	return strings.Contains(reference, ":")
 }
 
 func shortDigest(d string) string {

@@ -4,7 +4,7 @@
 # does not gate — formatting, vet, lint, and tests run in CI.
 
 # ---- build arguments -------------------------------------------------------
-ARG GO_VERSION=1.26
+ARG GO_VERSION=1.27.1
 ARG ALPINE_VERSION=3.22
 
 # Cross-compilation: BuildKit injects TARGETOS/TARGETARCH for the

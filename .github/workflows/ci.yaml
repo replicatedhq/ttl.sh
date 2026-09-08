@@ -26,9 +26,9 @@ jobs:
     name: Lint & format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: sidecar/go.mod
           check-latest: true
@@ -58,7 +58,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.12.2
+          version: v2.13.2
           # `defaults.run` does not apply to actions, so point it at the module.
           working-directory: sidecar
   test:
@@ -69,9 +69,9 @@ jobs:
     # runner's Docker daemon. GitHub sets CI=true, which makes it fail rather
     # than skip, so the persistence layer cannot drop out of this job.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: sidecar/go.mod
           check-latest: true
@@ -87,9 +87,9 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: sidecar/go.mod
           check-latest: true

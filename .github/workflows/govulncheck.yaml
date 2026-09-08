@@ -24,12 +24,14 @@ jobs:
     name: govulncheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # The action still installs govulncheck itself at @latest.
       - name: Run govulncheck
         uses: golang/govulncheck-action@v1
         with:
+          # Override the action's default (`stable`) so setup-go uses go.mod.
+          go-version-input: ""
           go-version-file: sidecar/go.mod
           check-latest: true
           cache-dependency-path: sidecar/go.sum

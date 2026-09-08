@@ -1,9 +1,11 @@
 {
-  "distSpecVersion": "1.1.0",
+  "distSpecVersion": "1.1.1",
   "storage": {
     "rootDirectory": "/var/lib/zot",
+    "redirectBlobURL": true,
     "dedupe": false,
     "gc": true,
+    "gcTimeWindow": "{{ zot_gc_time_window }}",
     "storageDriver": {
       "name": "s3",
       "rootdirectory": "{{ s3_root_directory }}",
@@ -14,7 +16,11 @@
       "secretkey": "{{ s3_secret_key }}",
       "secure": true,
       "forcepathstyle": true,
-      "skipverify": true
+      "skipverify": true,
+      "chunksize": "33554432",
+      "multipartcopychunksize": "33554432",
+      "multipartcopythresholdsize": "33554432",
+      "multipartcopymaxconcurrency": "100"
     },
     "retention": {
       "dryRun": false,
@@ -23,13 +29,7 @@
         {
           "repositories": ["**"],
           "deleteReferrers": true,
-          "deleteUntagged": true,
-          "keepTags": [
-            {
-              "patterns": [".*"],
-              "pushedWithin": "24h"
-            }
-          ]
+          "deleteUntagged": true
         }
       ]
     }
@@ -44,9 +44,6 @@
   "log": {
     "level": "warn"
   },
-  "scheduler": {
-    "numWorkers": 3
-  },
   "extensions": {
     "events": {
       "enable": true,
@@ -57,6 +54,12 @@
           "timeout": "5s"
         }
       ]
+    },
+    "metrics": {
+      "enable": true,
+      "prometheus": {
+        "path": "/metrics"
+      }
     }
   }
 }
