@@ -58,7 +58,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.12.2
+          version: v2.13.2
           # `defaults.run` does not apply to actions, so point it at the module.
           working-directory: sidecar
   test:
