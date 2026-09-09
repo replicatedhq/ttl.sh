@@ -20,7 +20,7 @@ export function TimeLimits() {
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Choose your TTL. Default is 1 hour, max is 24 hours.
+            Choose your TTL. Default is 24 hours, max is 24 hours.
             <br />
             When time's up, it's gone forever.
           </p>
@@ -41,7 +41,7 @@ export function TimeLimits() {
 
         <div className="mt-12 text-center">
           <p className="text-muted-foreground">
-            No TTL specified? Defaults to <code className="text-accent font-mono">:1h</code>
+            No TTL specified? Defaults to <code className="text-accent font-mono">:24h</code>
           </p>
         </div>
       </div>
